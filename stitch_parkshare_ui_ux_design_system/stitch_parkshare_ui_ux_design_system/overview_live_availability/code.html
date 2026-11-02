@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container": "#eaedff", "on-primary-fixed": "#001453", "primary-container": "#1e40af", "on-primary": "#ffffff", "on-tertiary-fixed-variant": "#6e3900", "error-container": "#ffdad6", "surface-container-lowest": "#ffffff", "on-error-container": "#93000a", "on-secondary-container": "#00714e", "on-surface-variant": "#444653", "secondary-container": "#82f5c1", "secondary-fixed": "#85f8c4", "inverse-primary": "#b8c4ff", "surface-container-low": "#f2f3ff", "on-surface": "#131b2e", "surface-dim": "#d2d9f4", "tertiary-fixed-dim": "#ffb77d", "primary-fixed-dim": "#b8c4ff", "surface-container-high": "#e2e7ff", "on-primary-container": "#a8b8ff", "surface-bright": "#faf8ff", "primary-fixed": "#dde1ff", "surface-variant": "#dae2fd", "on-tertiary": "#ffffff", "on-tertiary-fixed": "#2f1500", "on-primary-fixed-variant": "#173bab", "inverse-on-surface": "#eef0ff", "tertiary": "#532a00", "on-secondary": "#ffffff", "outline-variant": "#c4c5d5", "on-tertiary-container": "#ffa85d", "surface-container-highest": "#dae2fd", "primary": "#00288e", "on-secondary-fixed-variant": "#005137", "secondary": "#006c4a", "inverse-surface": "#283044", "secondary-fixed-dim": "#68dba9", "surface-tint": "#3755c3", "tertiary-container": "#743d00", "on-background": "#131b2e", "on-secondary-fixed": "#002114", "outline": "#757684", "on-error": "#ffffff", "error": "#ba1a1a", "surface": "#faf8ff", "background": "#faf8ff", "tertiary-fixed": "#ffdcc3" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-xs": "0.25rem", "space-md": "0.75rem", "space-xl": "1.5rem", "margin": "1rem", "space-sm": "0.5rem", "space-lg": "1rem", "gutter": "0.75rem" }, "fontFamily": { "body-lg": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "keypad-digit": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "number-bay": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"] }, "fontSize": { "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "label-lg": ["15px", { "lineHeight": "20px", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "700" }], "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "keypad-digit": ["24px", { "lineHeight": "28px", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "number-bay": ["28px", { "lineHeight": "32px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "label-md": ["13px", { "lineHeight": "18px", "fontWeight": "600" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }] } } } };</script><style>@layer base { html, body { width: 100vw; margin: 0; padding: 0; min-height: 100%; } body { overscroll-behavior-y: none; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } } ::-webkit-scrollbar { display: none; }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-background font-body-md text-on-surface antialiased flex flex-col min-h-screen"><div class="max-w-md w-full mx-auto flex-1 flex flex-col relative"><header class="fixed top-0 max-w-md w-full z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary shrink-0 shadow-sm"><span class="material-symbols-outlined text-[22px]">local_parking</span></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-primary tracking-tight leading-none">ParkShare</span><span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container">Apt 2</span></div><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Elmcrest • 8 Bays</span></div></div><div class="flex items-center gap-space-xs shrink-0"><button class="min-h-[44px] min-w-[44px] px-space-sm py-1.5 rounded-full bg-surface-container flex items-center gap-1.5 text-on-surface hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-[18px] text-primary">pin</span><span class="font-label-sm text-label-sm font-semibold">Code</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 w-full bg-surface px-margin pt-16 pb-24"><div class="flex flex-col w-full pb-10">
+<!-- WhatsApp Sync Bridge Banner -->
+<div class="w-full bg-secondary-container/70 rounded-xl p-space-sm mb-space-md flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-2 min-w-0">
+<div class="w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-on-secondary shrink-0">
+<span class="material-symbols-outlined text-[16px]">sync_alt</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-secondary-container leading-tight truncate">Replaces building WhatsApp thread</span>
+<span class="font-body-sm text-[11px] text-secondary leading-tight">Live synced across all 8 residents</span>
+</div>
+</div>
+<span class="font-label-sm text-[10px] bg-surface-container-lowest px-2 py-0.5 rounded-full text-on-secondary-container shrink-0 shadow-xs">No spam</span>
+</div>
+<!-- 1. Top Live Status Banner -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-lg shadow-sm mb-space-xl relative overflow-hidden">
+<div class="flex items-center justify-between mb-1.5">
+<div class="flex items-center gap-2">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary"></span>
+</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-bold">Live Lot Status</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+<span id="liveTimestamp">Tuesday, Oct 24 • 14:15</span>
+</div>
+</div>
+<div class="flex items-baseline gap-2 mt-1">
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-extrabold tracking-tight">2 bays free right now</h1>
+</div>
+<div class="mt-2 flex items-center gap-1.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-primary text-[16px] shrink-0">electric_bolt</span>
+<p class="font-body-sm text-body-sm leading-snug">
+<span class="font-semibold text-primary">First come, first parked.</span> No holding or reservation needed.
+      </p>
+</div>
+</div>
+<!-- 2. 'Available Now' Hero Section -->
+<section class="w-full mb-space-xl">
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-secondary"></div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Available Right Now</h2>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-semibold">2 ready</span>
+</div>
+<div class="flex flex-col gap-space-md">
+<!-- Bay #3 Card -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-lg shadow-sm relative overflow-hidden transition-transform active:scale-[0.99]">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-md">
+<div class="w-14 h-14 rounded-xl bg-secondary-container flex flex-col items-center justify-center shrink-0">
+<span class="font-label-sm text-[10px] text-on-secondary-container uppercase tracking-widest font-bold">BAY</span>
+<span class="font-number-bay text-number-bay text-on-secondary-container leading-none">03</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Space #3</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container text-primary font-semibold">Apt 2</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[15px] text-secondary">explore</span>
+<span>Ground level • Left covered bay</span>
+</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-label-sm px-2 py-1 rounded-full bg-secondary-container text-on-secondary-container font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> FREE
+            </span>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm bg-surface-container-low/60 rounded-lg p-space-sm flex flex-col gap-2">
+<div class="flex items-center justify-between text-on-surface">
+<div class="flex items-center gap-1.5 font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-secondary">hourglass_top</span>
+<span>Free until 18:00 today</span>
+</div>
+<span class="font-label-sm text-label-sm font-bold text-on-secondary-container bg-secondary-container/80 px-2 py-0.5 rounded-full">3h 45m left</span>
+</div>
+<!-- Progress bar -->
+<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 65%;"></div>
+</div>
+</div>
+<div class="mt-space-md flex items-center justify-between pt-1">
+<button class="font-label-sm text-label-sm text-primary flex items-center gap-1 hover:underline min-h-[44px]" onclick="toggleNotes('notes-bay-3')">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span>View gate code &amp; bay notes</span>
+</button>
+<div class="flex items-center gap-1 font-label-sm text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">verified_user</span> Open access
+          </div>
+</div>
+<!-- Hidden Notes Drawer for Bay 3 -->
+<div class="hidden mt-2 p-space-sm rounded-lg bg-surface-container text-on-surface text-body-sm font-body-sm flex flex-col gap-1.5" id="notes-bay-3">
+<div class="flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-primary font-bold">Neighbor Note from Apt 2:</span>
+<span class="font-label-sm text-[11px] bg-surface-container-lowest px-1.5 py-0.5 rounded text-on-surface font-mono">GATE #4190</span>
+</div>
+<p class="text-on-surface-variant">Please park centered to allow driver door room on Bay 2. EV charger is unplugged.</p>
+</div>
+</div>
+<!-- Bay #7 Card -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-lg shadow-sm relative overflow-hidden transition-transform active:scale-[0.99]">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-md">
+<div class="w-14 h-14 rounded-xl bg-secondary-container flex flex-col items-center justify-center shrink-0">
+<span class="font-label-sm text-[10px] text-on-secondary-container uppercase tracking-widest font-bold">BAY</span>
+<span class="font-number-bay text-number-bay text-on-secondary-container leading-none">07</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">Space #7</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded bg-surface-container text-primary font-semibold">Apt 4</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[15px] text-secondary">explore</span>
+<span>Upper courtyard • Wide stall</span>
+</p>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-label-sm px-2 py-1 rounded-full bg-secondary-container text-on-secondary-container font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> FREE
+            </span>
+</div>
+</div>
+<div class="mt-space-md pt-space-sm bg-surface-container-low/60 rounded-lg p-space-sm flex flex-col gap-2">
+<div class="flex items-center justify-between text-on-surface">
+<div class="flex items-center gap-1.5 font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px] text-secondary">nightlight</span>
+<span>Free all day until tomorrow 08:00</span>
+</div>
+<span class="font-label-sm text-label-sm font-bold text-on-secondary-container bg-secondary-container/80 px-2 py-0.5 rounded-full">17h 45m left</span>
+</div>
+<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 88%;"></div>
+</div>
+</div>
+<div class="mt-space-md flex items-center justify-between pt-1">
+<button class="font-label-sm text-label-sm text-primary flex items-center gap-1 hover:underline min-h-[44px]" onclick="toggleNotes('notes-bay-7')">
+<span class="material-symbols-outlined text-[16px]">info</span>
+<span>View gate code &amp; bay notes</span>
+</button>
+<div class="flex items-center gap-1 font-label-sm text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">bolt</span> EV Available
+          </div>
+</div>
+<!-- Hidden Notes Drawer for Bay 7 -->
+<div class="hidden mt-2 p-space-sm rounded-lg bg-surface-container text-on-surface text-body-sm font-body-sm flex flex-col gap-1.5" id="notes-bay-7">
+<div class="flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-primary font-bold">Neighbor Note from Apt 4:</span>
+<span class="font-label-sm text-[11px] bg-surface-container-lowest px-1.5 py-0.5 rounded text-on-surface font-mono">GATE #4190</span>
+</div>
+<p class="text-on-surface-variant">Feel free to plug into Type-2 charger. Traveling out of town until Wednesday morning.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. 'Next Available Spaces' Chronological Timeline -->
+<section class="w-full mb-space-xl">
+<div class="flex items-center justify-between mb-space-md">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary text-[20px]">update</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Upcoming Free Bays</h2>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Next 24h</span>
+</div>
+<div class="w-full bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-md">
+<!-- Timeline Item 1 -->
+<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed font-bold font-headline-sm shrink-0">
+            #5
+          </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Space #5</span>
+<span class="font-label-sm text-[11px] px-1.5 py-0.2 rounded bg-surface-container-highest text-on-surface-variant">Apt 3</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Today, 16:30 – 21:00</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">alarm</span> in 2h 15m
+          </span>
+<span class="font-body-sm text-[11px] text-on-surface-variant mt-0.5">Duration: 4h 30m</span>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary font-bold font-headline-sm shrink-0">
+            #2
+          </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Space #2</span>
+<span class="font-label-sm text-[11px] px-1.5 py-0.2 rounded bg-surface-container-highest text-on-surface-variant">Apt 1</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Tomorrow, 08:00 – 17:00</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">event_repeat</span> Recurring
+          </span>
+<span class="font-body-sm text-[11px] text-on-surface-variant mt-0.5">Office commute</span>
+</div>
+</div>
+<!-- Timeline Item 3 -->
+<div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-primary font-bold font-headline-sm shrink-0">
+            #8
+          </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-lg text-label-lg text-on-surface font-bold">Space #8</span>
+<span class="font-label-sm text-[11px] px-1.5 py-0.2 rounded bg-surface-container-highest text-on-surface-variant">Apt 4</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Tomorrow, 14:00 – 20:00</span>
+</div>
+</div>
+<div class="flex flex-col items-end shrink-0 pl-2">
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">schedule</span> Starts 14:00
+          </span>
+<span class="font-body-sm text-[11px] text-on-surface-variant mt-0.5">Evening window</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. 'All 8 Parking Spaces' Bird's-Eye Grid -->
+<section class="w-full mb-space-xl">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">grid_view</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">All 8 Building Bays</h2>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">Free</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary-container"></span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">Soon</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="font-label-sm text-[11px] text-on-surface-variant">Occupied</span>
+</div>
+</div>
+</div>
+<!-- 2-Column Grid (4 rows) -->
+<div class="grid grid-cols-2 gap-gutter w-full">
+<!-- Spot 1: Occupied -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between min-h-[110px] relative overflow-hidden">
+<div class="flex items-start justify-between">
+<span class="font-number-bay text-[22px] leading-none text-on-surface font-extrabold">01</span>
+<span class="font-label-sm text-[10px] px-1.5 py-0.5 rounded-full bg-error-container text-on-error-container font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[10px]">lock</span> Occupied
+          </span>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Apt 1 Resident</span>
+<span class="font-body-sm text-[11px] text-on-surface-variant">No schedule set</span>
+</div>
+</div>
+<!-- Spot 2: Amber -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between min-h-[110px] relative overflow-hidden">
+<div class="flex items-start justify-between">
+<span class="font-number-bay text-[22px] leading-none text-on-surface font-extrabold">02</span>
+<span class="font-label-sm text-[10px] px-1.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[10px]">schedule</span> Free 08:00
+          </span>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Apt 1</span>
+<span class="font-body-sm text-[11px] text-tertiary font-medium">Free at 08:00 tmrw</span>
+</div>
+</div>
+<!-- Spot 3: Green FREE NOW -->
+<div class="bg-secondary-container/40 rounded-xl p-space-md shadow-sm flex flex-col justify-between min-h-[110px] relative overflow-hidden">
+<div class="flex items-start justify-between">
+<span class="font-number-bay text-[22px] leading-none text-on-secondary-container font-extrabold">03</span>
+<span class="font-label-sm text-[10px] px-1.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[10px]">check_circle</span> FREE NOW
+          </span>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Apt 2</span>
+<span class="font-body-sm text-[11px] text-secondary font-bold">Open until 18:00</span>
+</div>
+</div>
+<!-- Spot 4: Occupied -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between min-h-[110px] relative overflow-hidden">
+<div class="flex items-start justify-between">
+<span class="font-number-bay text-[22px] leading-none text-on-surface font-extrabold">04</span>
+<span class="font-label-sm text-[10px] px-1.5 py-0.5 rounded-full bg-error-container text-on-error-container font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[10px]">lock</span> Occupied
+          </span>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Apt 2 (Yours)</span>
+<span class="font-body-sm text-[11px] text-on-surface-variant">Currently in use</span>
+</div>
+</div>
+<!-- Spot 5: Amber -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between min-h-[110px] relative overflow-hidden">
+<div class="flex items-start justify-between">
+<span class="font-number-bay text-[22px] leading-none text-on-surface font-extrabold">05</span>
+<span class="font-label-sm text-[10px] px-1.5 py-0.5 rounded-full bg-tertiary-fixed text-on-tertiary-fixed font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[10px]">schedule</span> Free 16:30
+          </span>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Apt 3</span>
+<span class="font-body-sm text-[11px] text-tertiary font-medium">Free at 16:30 today</span>
+</div>
+</div>
+<!-- Spot 6: Occupied -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between min-h-[110px] relative overflow-hidden">
+<div class="flex items-start justify-between">
+<span class="font-number-bay text-[22px] leading-none text-on-surface font-extrabold">06</span>
+<span class="font-label-sm text-[10px] px-1.5 py-0.5 rounded-full bg-error-container text-on-error-container font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[10px]">lock</span> Occupied
+          </span>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Apt 3</span>
+<span class="font-body-sm text-[11px] text-on-surface-variant">Occupied full-day</span>
+</div>
+</div>
+<!-- Spot 7: Green FREE NOW -->
+<div class="bg-secondary-container/40 rounded-xl p-space-md shadow-sm flex flex-col justify-between min-h-[110px] relative overflow-hidden">
+<div class="flex items-start justify-between">
+<span class="font-number-bay text-[22px] leading-none text-on-secondary-container font-extrabold">07</span>
+<span class="font-label-sm text-[10px] px-1.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[10px]">check_circle</span> FREE NOW
+          </span>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Apt 4</span>
+<span class="font-body-sm text-[11px] text-secondary font-bold">Free all day</span>
+</div>
+</div>
+<!-- Spot 8: Occupied -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between min-h-[110px] relative overflow-hidden">
+<div class="flex items-start justify-between">
+<span class="font-number-bay text-[22px] leading-none text-on-surface font-extrabold">08</span>
+<span class="font-label-sm text-[10px] px-1.5 py-0.5 rounded-full bg-error-container text-on-error-container font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[10px]">lock</span> Occupied
+          </span>
+</div>
+<div class="flex flex-col mt-2">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Apt 4</span>
+<span class="font-body-sm text-[11px] text-on-surface-variant">Until tmrw 14:00</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. Floating / Sticky Primary Resident Action Card -->
+<section class="w-full bg-primary text-on-primary rounded-xl p-space-lg shadow-md flex flex-col gap-3 relative overflow-hidden">
+<div class="flex items-start justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-[11px] text-on-primary-container uppercase tracking-wider font-bold">Resident Action</span>
+<h3 class="font-headline-md text-headline-md font-bold text-on-primary mt-0.5">Leaving your spot open?</h3>
+</div>
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary shrink-0">
+<span class="material-symbols-outlined text-[20px]">share_location</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-primary-container leading-relaxed">
+      Got a free bay while out for work or dinner? Tap below to share it with your Elmcrest neighbors in 15 seconds.
+    </p>
+<button class="w-full h-12 bg-surface-container-lowest text-primary rounded-xl font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-sm hover:bg-surface-container transition-all active:scale-[0.98]" onclick="openShareModal()">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>Make My Space Available</span>
+</button>
+</section>
+<!-- Inline Quick Share Sheet Modal -->
+<div class="hidden fixed inset-0 z-50 flex items-end justify-center p-margin bg-on-surface/40 backdrop-blur-xs transition-opacity" id="shareModal">
+<div class="w-full max-w-md bg-surface-container-lowest rounded-2xl p-space-lg shadow-xl flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-primary-container text-on-primary flex items-center justify-center font-bold">#4</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm font-bold text-on-surface">Share Space #4 (Apt 2)</h4>
+<span class="font-body-sm text-[12px] text-on-surface-variant">Instant listing for Elmcrest residents</span>
+</div>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface" onclick="closeShareModal()">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<div class="flex flex-col gap-1.5">
+<label class="font-label-sm text-label-sm font-bold text-on-surface">How long will it be free?</label>
+<div class="grid grid-cols-4 gap-2">
+<button class="time-chip py-2 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm font-bold active:bg-primary active:text-on-primary">2 Hours</button>
+<button class="time-chip py-2 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm font-bold active:bg-primary active:text-on-primary">4 Hours</button>
+<button class="time-chip py-2 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-bold">Until 22:00</button>
+<button class="time-chip py-2 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm font-bold">All Night</button>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm font-bold text-on-surface">Optional note for neighbor</label>
+<input class="w-full p-space-sm bg-surface-container-low rounded-lg font-body-sm text-body-sm text-on-surface outline-hidden focus:bg-surface-container-lowest" placeholder="e.g. Back by 9pm, EV charger accessible" type="text"/>
+</div>
+<button class="w-full h-12 bg-primary text-on-primary rounded-xl font-label-lg text-label-lg font-bold flex items-center justify-center gap-2 shadow-sm" onclick="publishSpace()">
+<span class="material-symbols-outlined text-[20px]">check</span>
+<span>Broadcast Bay as Free</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  function toggleNotes(elementId) {
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.classList.toggle('hidden');
+    }
+  }
+
+  function openShareModal() {
+    const modal = document.getElementById('shareModal');
+    if (modal) {
+      modal.classList.remove('hidden');
+    }
+  }
+
+  function closeShareModal() {
+    const modal = document.getElementById('shareModal');
+    if (modal) {
+      modal.classList.add('hidden');
+    }
+  }
+
+  function publishSpace() {
+    alert("Space #4 is now marked FREE on the live board! Neighbors notified.");
+    closeShareModal();
+  }
+</script></main><nav class="fixed bottom-0 max-w-md w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(19,27,46,0.06)] pb-safe" data-active-classes="text-primary font-bold"><div class="h-16 px-space-sm flex items-center justify-around"><a aria-current="page" class="flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 transition-colors group text-primary font-bold" data-path="overview" href="#"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">grid_view</span></div><span class="font-label-sm text-label-sm mt-0.5">Overview</span></a><a class="flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 text-on-surface-variant hover:text-primary transition-colors group" data-path="my-spaces" href="#"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">directions_car</span><span class="absolute -top-1 -right-2.5 w-4 h-4 rounded-full bg-primary text-on-primary text-[9px] font-bold flex items-center justify-center">2</span></div><span class="font-label-sm text-label-sm mt-0.5">My Spaces</span></a><a class="flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 text-on-surface-variant hover:text-primary transition-colors group" data-path="schedule" href="#"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">calendar_today</span></div><span class="font-label-sm text-label-sm mt-0.5">Schedule</span></a><a class="flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 text-on-surface-variant hover:text-primary transition-colors group" data-path="building-admin" href="#"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">tune</span><span class="material-symbols-outlined absolute -top-1 -right-2 text-[12px] text-outline">lock</span></div><span class="font-label-sm text-label-sm mt-0.5">Admin</span></a></div></nav></div></body></html>

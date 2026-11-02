@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container": "#eaedff", "on-primary-fixed": "#001453", "primary-container": "#1e40af", "on-primary": "#ffffff", "on-tertiary-fixed-variant": "#6e3900", "error-container": "#ffdad6", "surface-container-lowest": "#ffffff", "on-error-container": "#93000a", "on-secondary-container": "#00714e", "on-surface-variant": "#444653", "secondary-container": "#82f5c1", "secondary-fixed": "#85f8c4", "inverse-primary": "#b8c4ff", "surface-container-low": "#f2f3ff", "on-surface": "#131b2e", "surface-dim": "#d2d9f4", "tertiary-fixed-dim": "#ffb77d", "primary-fixed-dim": "#b8c4ff", "surface-container-high": "#e2e7ff", "on-primary-container": "#a8b8ff", "surface-bright": "#faf8ff", "primary-fixed": "#dde1ff", "surface-variant": "#dae2fd", "on-tertiary": "#ffffff", "on-tertiary-fixed": "#2f1500", "on-primary-fixed-variant": "#173bab", "inverse-on-surface": "#eef0ff", "tertiary": "#532a00", "on-secondary": "#ffffff", "outline-variant": "#c4c5d5", "on-tertiary-container": "#ffa85d", "surface-container-highest": "#dae2fd", "primary": "#00288e", "on-secondary-fixed-variant": "#005137", "secondary": "#006c4a", "inverse-surface": "#283044", "secondary-fixed-dim": "#68dba9", "surface-tint": "#3755c3", "tertiary-container": "#743d00", "on-background": "#131b2e", "on-secondary-fixed": "#002114", "outline": "#757684", "on-error": "#ffffff", "error": "#ba1a1a", "surface": "#faf8ff", "background": "#faf8ff", "tertiary-fixed": "#ffdcc3" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-xs": "0.25rem", "space-md": "0.75rem", "space-xl": "1.5rem", "margin": "1rem", "space-sm": "0.5rem", "space-lg": "1rem", "gutter": "0.75rem" }, "fontFamily": { "body-lg": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "keypad-digit": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "number-bay": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"] }, "fontSize": { "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "label-lg": ["15px", { "lineHeight": "20px", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "700" }], "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "keypad-digit": ["24px", { "lineHeight": "28px", "fontWeight": "600" }], "body-sm": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "number-bay": ["28px", { "lineHeight": "32px", "letterSpacing": "-0.03em", "fontWeight": "800" }], "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "label-md": ["13px", { "lineHeight": "18px", "fontWeight": "600" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }] } } } };</script><style>@layer base { html, body { width: 100vw; margin: 0; padding: 0; min-height: 100%; } body { overscroll-behavior-y: none; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } } ::-webkit-scrollbar { display: none; }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-background font-body-md text-on-surface antialiased flex flex-col min-h-screen"><div class="max-w-md w-full mx-auto flex-1 flex flex-col relative"><header class="fixed top-0 max-w-md w-full z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary shrink-0 shadow-sm"><span class="material-symbols-outlined text-[22px]">local_parking</span></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-primary tracking-tight leading-none">ParkShare</span><span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container">Apt 2</span></div><span class="font-label-sm text-label-sm text-on-surface-variant truncate">Elmcrest • 8 Bays</span></div></div><div class="flex items-center gap-space-xs shrink-0"><button class="min-h-[44px] min-w-[44px] px-space-sm py-1.5 rounded-full bg-surface-container flex items-center gap-1.5 text-on-surface hover:bg-surface-container-high transition-colors"><span class="material-symbols-outlined text-[18px] text-primary">pin</span><span class="font-label-sm text-label-sm font-semibold">Code</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 w-full bg-surface px-margin pt-16 pb-24"><div class="flex flex-col w-full pb-8">
+<!-- Resident Identity Card -->
+<div class="bg-surface-container-low rounded-xl p-space-md shadow-sm mb-space-lg flex items-center justify-between">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-11 h-11 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[24px]">garage_home</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface leading-tight">Apartment 2</span>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">Assigned Spaces #3 &amp; #4</span>
+</div>
+</div>
+<button class="min-h-[44px] px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors flex items-center gap-1 text-primary shrink-0" id="switchAptBtn">
+<span class="material-symbols-outlined text-[18px]">swap_horiz</span>
+<span class="font-label-sm text-label-sm">Switch</span>
+</button>
+</div>
+<!-- Section Title -->
+<div class="flex items-center justify-between mb-space-sm">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">My Assigned Bays</h2>
+<span class="font-label-sm text-label-sm text-on-surface-variant">2 Allocated</span>
+</div>
+<!-- Space #3 Card (Shared & Available) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-md p-space-md mb-space-lg transition-all duration-300" id="space3Card">
+<div class="flex items-start justify-between gap-space-sm mb-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-12 h-12 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center font-number-bay text-number-bay">
+          03
+        </div>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface">Space #3</span>
+<span class="material-symbols-outlined text-[18px] text-secondary">verified</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Standard Sedan • Bay Ground North</span>
+</div>
+</div>
+<div class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm flex items-center gap-1 shrink-0" id="space3Badge">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span>Shared • Available Now</span>
+</div>
+</div>
+<!-- Active Timer & Status Banner -->
+<div class="bg-surface-container-low rounded-lg p-space-md mb-space-md flex flex-col gap-1.5" id="space3StatusBox">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-on-surface">
+<span class="material-symbols-outlined text-[20px] text-secondary">schedule</span>
+<span class="font-label-md text-label-md">Open for neighbors today</span>
+</div>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded-full bg-surface-container text-primary font-bold">10:00 – 18:00</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Expires in 3h 45m</span>
+<div class="w-28 bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-secondary h-1.5 rounded-full" style="width: 58%"></div>
+</div>
+</div>
+<div class="flex items-center gap-1.5 pt-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-primary">event_repeat</span>
+<span class="font-body-sm text-body-sm">Recurring: Every Tue &amp; Thu (08:00 - 18:00)</span>
+</div>
+</div>
+<!-- Micro neighbor activity preview -->
+<div class="flex items-center gap-2 mb-space-md px-1">
+<div class="w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[14px]">directions_car</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Neighbors can park without keycard gate code.</span>
+</div>
+<!-- Direct Quick Actions -->
+<div class="grid grid-cols-2 gap-space-sm mb-space-xs">
+<button class="min-h-[44px] px-3 py-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-label-md text-label-md flex items-center justify-center gap-1.5 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">edit_calendar</span>
+<span>Edit Times</span>
+</button>
+<button class="min-h-[44px] px-3 py-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-label-md text-label-md flex items-center justify-center gap-1.5 shadow-sm" id="pauseScheduleBtn">
+<span class="material-symbols-outlined text-[18px]">pause_circle</span>
+<span>Pause Schedule</span>
+</button>
+</div>
+<!-- Emergency Immediate Recall -->
+<button class="w-full mt-2 min-h-[44px] px-3 py-2.5 rounded-lg bg-error-container text-on-error-container hover:opacity-90 active:scale-[0.99] transition-all font-label-md text-label-md flex items-center justify-center gap-2 shadow-sm" id="emergencyRecallBtn">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+<span>Mark Occupied Now (Recall Bay)</span>
+</button>
+</div>
+<!-- Space #4 Card (Currently Private / In Use) -->
+<div class="bg-surface-container-lowest rounded-xl shadow-md p-space-md mb-space-lg" id="space4Card">
+<div class="flex items-start justify-between gap-space-sm mb-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-12 h-12 rounded-xl bg-surface-container text-primary font-number-bay text-number-bay flex items-center justify-center">
+          04
+        </div>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface">Space #4</span>
+<span class="material-symbols-outlined text-[18px] text-outline">lock</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Compact / EV Ready • Bay Ground South</span>
+</div>
+</div>
+<div class="px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm flex items-center gap-1 shrink-0">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span>Private • In Use</span>
+</div>
+</div>
+<!-- In-use status preview card -->
+<div class="bg-surface-container-low rounded-lg p-space-md mb-space-md flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-on-surface-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">no_crash</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-md text-label-md text-on-surface">Currently reserved for Apt 2 family car</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">No upcoming neighbor availability scheduled.</span>
+</div>
+</div>
+<!-- Big Interactive Action Tile to Open Space 4 -->
+<button class="w-full min-h-[56px] rounded-xl bg-surface-container-high hover:bg-surface-variant active:scale-[0.99] transition-all p-space-md flex items-center justify-between text-left group" id="declareSpace4Btn">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center group-hover:rotate-90 transition-transform">
+<span class="material-symbols-outlined text-[22px]">add</span>
+</div>
+<div>
+<div class="font-label-lg text-label-lg text-primary">Declare Space #4 Available</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Going out? Share with neighbors for an hour or a weekend.</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-[20px]">chevron_right</span>
+</button>
+</div>
+<!-- Active & Recurring Rules Section -->
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-1.5">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Active Sharing Rules</h2>
+<span class="w-5 h-5 rounded-full bg-surface-container text-primary font-label-sm text-label-sm flex items-center justify-center">2</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Auto-pilot</span>
+</div>
+<div class="flex flex-col gap-space-sm mb-space-xl">
+<!-- Rule 1: Weekly Recurring -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex items-center justify-between gap-space-sm">
+<div class="flex items-start gap-3 min-w-0">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-primary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">sync</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-lg text-label-lg text-on-surface">Space #3 • Weekly Commute</span>
+<span class="px-1.5 py-0.5 rounded bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">Active</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Tuesdays &amp; Thursdays • 08:00 – 18:00</span>
+<div class="flex items-center gap-1 mt-1">
+<span class="w-5 h-5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm flex items-center justify-center">M</span>
+<span class="w-5 h-5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm flex items-center justify-center font-bold">T</span>
+<span class="w-5 h-5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm flex items-center justify-center">W</span>
+<span class="w-5 h-5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm flex items-center justify-center font-bold">T</span>
+<span class="w-5 h-5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm flex items-center justify-center">F</span>
+<span class="w-5 h-5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm flex items-center justify-center">S</span>
+<span class="w-5 h-5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm flex items-center justify-center">S</span>
+</div>
+</div>
+</div>
+<!-- Toggle Switch -->
+<button aria-checked="true" class="rule-toggle relative w-12 h-7 bg-primary rounded-full p-0.5 shrink-0 transition-colors" role="switch">
+<span class="block w-6 h-6 bg-surface-container-lowest rounded-full shadow-md transform translate-x-5 transition-transform"></span>
+</button>
+</div>
+<!-- Rule 2: One-off scheduled -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex items-center justify-between gap-space-sm">
+<div class="flex items-start gap-3 min-w-0">
+<div class="w-9 h-9 rounded-lg bg-surface-container text-primary flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px]">nightlife</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-label-lg text-label-lg text-on-surface">Space #3 • Friday Night Out</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-sm text-label-sm">Scheduled</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Nov 3 • 19:00 – 23:30 (One-off)</span>
+<span class="font-body-sm text-body-sm text-primary flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">notifications_active</span> Auto-releases to building pool
+          </span>
+</div>
+</div>
+<div class="flex items-center gap-1 shrink-0">
+<button class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors" title="Edit Rule">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-error hover:bg-error-container transition-colors" title="Delete Rule">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Primary Bottom Call-To-Action Button -->
+<div class="sticky bottom-20 z-20 pt-2 pb-1">
+<button class="w-full h-12 rounded-xl bg-primary text-on-primary font-headline-sm text-headline-sm flex items-center justify-center gap-2 shadow-xl hover:opacity-95 active:scale-[0.98] transition-all" id="addNewPeriodBtn">
+<span class="material-symbols-outlined text-[24px]">add_circle</span>
+<span>Add New Availability Period</span>
+</button>
+</div>
+<!-- Modal / Drawer for Declaring Availability -->
+<div class="hidden fixed inset-0 z-50 flex items-end justify-center bg-inverse-surface/40 backdrop-blur-sm transition-opacity" id="availabilityDrawer">
+<div class="w-full max-w-md bg-surface-container-lowest rounded-t-3xl p-space-lg shadow-2xl flex flex-col gap-space-md animate-slide-up">
+<div class="w-12 h-1.5 bg-surface-container rounded-full mx-auto -mt-1"></div>
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface">Share Parking Bay</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Offer your spot to Elmcrest neighbors</p>
+</div>
+<button class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center text-on-surface" id="closeDrawerBtn">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Target Bay Selector -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface">Select Spot</label>
+<div class="grid grid-cols-2 gap-space-sm">
+<button class="bay-chip py-2.5 px-3 rounded-xl bg-surface-container text-on-surface flex items-center justify-center gap-2 font-label-md text-label-md" type="button">
+<span>Space #3</span>
+</button>
+<button class="bay-chip py-2.5 px-3 rounded-xl bg-primary text-on-primary flex items-center justify-center gap-2 font-label-md text-label-md" type="button">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span>Space #4</span>
+</button>
+</div>
+</div>
+<!-- Quick duration pills -->
+<div class="flex flex-col gap-1.5">
+<label class="font-label-md text-label-md text-on-surface">Quick Duration</label>
+<div class="flex items-center gap-2 overflow-x-auto pb-1">
+<button class="duration-chip px-3 py-1.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md shrink-0">1 hour</button>
+<button class="duration-chip px-3 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md shrink-0">3 hours</button>
+<button class="duration-chip px-3 py-1.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md shrink-0">Until Tonight</button>
+<button class="duration-chip px-3 py-1.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md shrink-0">All Weekend</button>
+</div>
+</div>
+<!-- Recurring Schedule Day Pills -->
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface">Repeat Every Week</label>
+<input class="w-4 h-4 accent-primary rounded" id="repeatToggle" type="checkbox"/>
+</div>
+<div class="grid grid-cols-7 gap-1">
+<button class="h-10 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm">M</button>
+<button class="h-10 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm">T</button>
+<button class="h-10 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm">W</button>
+<button class="h-10 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm">T</button>
+<button class="h-10 rounded-lg bg-surface-container text-on-surface font-label-sm text-label-sm">F</button>
+<button class="h-10 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-bold">S</button>
+<button class="h-10 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm font-bold">S</button>
+</div>
+</div>
+<button class="w-full h-12 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 mt-2 shadow-lg" id="confirmShareBtn">
+<span class="material-symbols-outlined text-[20px]">share_location</span>
+<span>Confirm &amp; Broadcast Availability</span>
+</button>
+</div>
+</div>
+<!-- Toast Notification Feedback -->
+<div class="hidden fixed bottom-24 left-1/2 -translate-x-1/2 max-w-xs w-full bg-inverse-surface text-inverse-on-surface px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 z-50 transition-all" id="toastNotification">
+<span class="material-symbols-outlined text-secondary-fixed text-[20px]" id="toastIcon">check_circle</span>
+<span class="font-body-sm text-body-sm" id="toastMessage">Availability shared with building!</span>
+</div>
+</div>
+<script>
+  (function() {
+    const drawer = document.getElementById('availabilityDrawer');
+    const declareSpace4Btn = document.getElementById('declareSpace4Btn');
+    const addNewPeriodBtn = document.getElementById('addNewPeriodBtn');
+    const closeDrawerBtn = document.getElementById('closeDrawerBtn');
+    const confirmShareBtn = document.getElementById('confirmShareBtn');
+    const emergencyRecallBtn = document.getElementById('emergencyRecallBtn');
+    const pauseScheduleBtn = document.getElementById('pauseScheduleBtn');
+    const toast = document.getElementById('toastNotification');
+    const toastMsg = document.getElementById('toastMessage');
+    const toastIcon = document.getElementById('toastIcon');
+
+    function showToast(message, iconName = 'check_circle') {
+      if (!toast) return;
+      toastMsg.textContent = message;
+      toastIcon.textContent = iconName;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2600);
+    }
+
+    function openDrawer() {
+      drawer.classList.remove('hidden');
+    }
+
+    function closeDrawer() {
+      drawer.classList.add('hidden');
+    }
+
+    if (declareSpace4Btn) declareSpace4Btn.addEventListener('click', openDrawer);
+    if (addNewPeriodBtn) addNewPeriodBtn.addEventListener('click', openDrawer);
+    if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeDrawer);
+
+    if (confirmShareBtn) {
+      confirmShareBtn.addEventListener('click', () => {
+        closeDrawer();
+        showToast('Space declared available to neighbors!');
+      });
+    }
+
+    if (emergencyRecallBtn) {
+      emergencyRecallBtn.addEventListener('click', () => {
+        const confirmed = confirm('Immediately recall Space #3? Any pending neighbor reservation will be cancelled.');
+        if (confirmed) {
+          const badge = document.getElementById('space3Badge');
+          const statusBox = document.getElementById('space3StatusBox');
+          if (badge) {
+            badge.className = 'px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm flex items-center gap-1 shrink-0';
+            badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-error"></span><span>Recalled • Private</span>';
+          }
+          if (statusBox) {
+            statusBox.innerHTML = '<div class="flex items-center gap-2 text-error"><span class="material-symbols-outlined text-[20px]">lock</span><span class="font-label-md text-label-md">Bay reclaimed immediately for Apt 2</span></div>';
+          }
+          showToast('Space #3 recalled. Set to Private.', 'lock_reset');
+        }
+      });
+    }
+
+    if (pauseScheduleBtn) {
+      pauseScheduleBtn.addEventListener('click', function() {
+        const isPaused = this.dataset.paused === 'true';
+        if (!isPaused) {
+          this.dataset.paused = 'true';
+          this.innerHTML = '<span class="material-symbols-outlined text-[18px]">play_circle</span><span>Resume</span>';
+          showToast('Schedule paused for this week.', 'pause');
+        } else {
+          this.dataset.paused = 'false';
+          this.innerHTML = '<span class="material-symbols-outlined text-[18px]">pause_circle</span><span>Pause Schedule</span>';
+          showToast('Recurring schedule resumed.', 'play_circle');
+        }
+      });
+    }
+
+    // Interactive Rule Toggles
+    document.querySelectorAll('.rule-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const isChecked = btn.getAttribute('aria-checked') === 'true';
+        btn.setAttribute('aria-checked', (!isChecked).toString());
+        const knob = btn.querySelector('span');
+        if (isChecked) {
+          btn.classList.remove('bg-primary');
+          btn.classList.add('bg-surface-container-high');
+          knob.classList.remove('translate-x-5');
+          knob.classList.add('translate-x-0');
+          showToast('Rule deactivated', 'toggle_off');
+        } else {
+          btn.classList.add('bg-primary');
+          btn.classList.remove('bg-surface-container-high');
+          knob.classList.add('translate-x-5');
+          knob.classList.remove('translate-x-0');
+          showToast('Rule active', 'toggle_on');
+        }
+      });
+    });
+
+    // Chip selection logic inside drawer
+    document.querySelectorAll('.duration-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.duration-chip').forEach(c => {
+          c.classList.remove('bg-primary', 'text-on-primary');
+          c.classList.add('bg-surface-container', 'text-on-surface');
+        });
+        chip.classList.remove('bg-surface-container', 'text-on-surface');
+        chip.classList.add('bg-primary', 'text-on-primary');
+      });
+    });
+  })();
+</script></main><nav class="fixed bottom-0 max-w-md w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(19,27,46,0.06)] pb-safe" data-active-classes="text-primary font-bold"><div class="h-16 px-space-sm flex items-center justify-around"><a class="flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 text-on-surface-variant hover:text-primary transition-colors group" data-path="overview" href="#"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">grid_view</span></div><span class="font-label-sm text-label-sm mt-0.5">Overview</span></a><a aria-current="page" class="flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 transition-colors group text-primary font-bold" data-path="my-spaces" href="#"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">directions_car</span><span class="absolute -top-1 -right-2.5 w-4 h-4 rounded-full bg-primary text-on-primary text-[9px] font-bold flex items-center justify-center">2</span></div><span class="font-label-sm text-label-sm mt-0.5">My Spaces</span></a><a class="flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 text-on-surface-variant hover:text-primary transition-colors group" data-path="schedule" href="#"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">calendar_today</span></div><span class="font-label-sm text-label-sm mt-0.5">Schedule</span></a><a class="flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 text-on-surface-variant hover:text-primary transition-colors group" data-path="building-admin" href="#"><div class="relative flex items-center justify-center"><span class="material-symbols-outlined text-[24px]">tune</span><span class="material-symbols-outlined absolute -top-1 -right-2 text-[12px] text-outline">lock</span></div><span class="font-label-sm text-label-sm mt-0.5">Admin</span></a></div></nav></div></body></html>
