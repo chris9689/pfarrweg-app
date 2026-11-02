@@ -139,11 +139,12 @@ export default function OverviewPage() {
 
 function OverviewLoading({ onRetry }: { onRetry: () => Promise<void> }) {
   const { t } = useTranslation();
-  const { failed } = useOverview();
+  const { failed, errorCode } = useOverview();
   if (!failed) return <Spinner />;
   return (
     <div className="flex flex-col items-center gap-4 py-10 text-center">
       <Alert>{t('overview.loadError')}</Alert>
+      {errorCode && <code className="text-xs text-slate-500">{errorCode}</code>}
       <Button variant="secondary" onClick={() => void onRetry()}>
         {t('common.retry')}
       </Button>

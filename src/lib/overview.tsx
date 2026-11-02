@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { OverviewResponse } from '../../shared/types';
-import { api } from './api';
+import { api, ApiError } from './api';
 
 const CACHE_KEY = 'parkshare.overview.v1';
 const REFRESH_MS = 60_000;
@@ -10,6 +10,8 @@ interface OverviewState {
   /** Time of the last successful fetch. */
   fetchedAt: number | null;
   failed: boolean;
+  /** Technical reason of the last failed refresh, e.g. "server_misconfigured (500)". */
+  errorCode: string | null;
   refresh: () => Promise<void>;
 }
 
@@ -30,6 +32,7 @@ export function OverviewProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<OverviewResponse | null>(cached.current?.data ?? null);
   const [fetchedAt, setFetchedAt] = useState<number | null>(cached.current?.fetchedAt ?? null);
   const [failed, setFailed] = useState(false);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     try {
@@ -38,13 +41,15 @@ export function OverviewProvider({ children }: { children: ReactNode }) {
       setData(next);
       setFetchedAt(at);
       setFailed(false);
+      setErrorCode(null);
       try {
         localStorage.setItem(CACHE_KEY, JSON.stringify({ data: next, fetchedAt: at }));
       } catch {
         /* ignore quota / private mode */
       }
-    } catch {
+    } catch (err) {
       setFailed(true);
+      setErrorCode(err instanceof ApiError ? `${err.code} (${err.status})` : 'unknown');
     }
   }, []);
 
@@ -63,7 +68,7 @@ export function OverviewProvider({ children }: { children: ReactNode }) {
   }, [refresh]);
 
   return (
-    <OverviewContext.Provider value={{ data, fetchedAt, failed, refresh }}>{children}</OverviewContext.Provider>
+    <OverviewContext.Provider value={{ data, fetchedAt, failed, errorCode, refresh }}>{children}</OverviewContext.Provider>
   );
 }
 
