@@ -33,7 +33,7 @@ async function main() {
     return;
   }
   const { default: postgres } = await import('postgres');
-  const sql = postgres(url, { prepare: false, max: 1, onnotice: () => {} });
+  const sql = postgres(url, { prepare: false, max: 1, max_pipeline: 1, onnotice: () => {} });
   const wrap = (s) => ({
     query: (text, params = []) => s.unsafe(text, params),
     exec: (text) => s.unsafe(text).simple(),

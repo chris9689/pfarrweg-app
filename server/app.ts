@@ -101,7 +101,8 @@ export function createApp({ db, config }: { db: Db; config: AppConfig }) {
 
   const overview: Handler = async () => {
     const t = config.now();
-    const [spaces, all] = await Promise.all([repo.listSpaces(db), repo.listSchedules(db)]);
+    const spaces = await repo.listSpaces(db);
+    const all = await repo.listSchedules(db);
     const active = all.filter((s) => s.isActive && !isFinished(s, t));
     const exceptions = await repo.listExceptions(
       db,
@@ -244,11 +245,9 @@ export function createApp({ db, config }: { db: Db; config: AppConfig }) {
 
   const adminState: Handler = async () => {
     const t = config.now();
-    const [apartments, spaces, all] = await Promise.all([
-      repo.listApartments(db),
-      repo.listSpaces(db),
-      repo.listSchedules(db),
-    ]);
+    const apartments = await repo.listApartments(db);
+    const spaces = await repo.listSpaces(db);
+    const all = await repo.listSchedules(db);
     const list = all.filter((s) => !isFinished(s, t));
     const body: AdminStateResponse = {
       timezone: config.timezone,

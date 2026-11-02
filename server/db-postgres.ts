@@ -22,6 +22,8 @@ export function createPostgresDb(url: string): Db {
   const sql = postgres(url, {
     prepare: false,
     max: 1,
+    // Pipelined queries hang behind Supabase's transaction pooler (Supavisor).
+    max_pipeline: 1,
     idle_timeout: 20,
     connect_timeout: 10,
     ssl: local ? false : 'require',
