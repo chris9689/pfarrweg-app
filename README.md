@@ -50,7 +50,7 @@ supabase/migrations/      SQL schema + initial building layout
 scripts/                  migrate.mjs, hash-password.mjs, generate-icons.mjs
 tests/                    Vitest unit + integration tests
 e2e/                      Playwright end-to-end tests
-public/                   Icons for the PWA
+public/                   Branding sheet + generated icons (`npm run icons` crops the app icon from the sheet)
 ```
 
 ---

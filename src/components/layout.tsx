@@ -46,7 +46,7 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-canvas/85 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
       <div className="mx-auto flex h-16 w-full max-w-3xl items-center justify-between gap-3 px-4 sm:px-6">
         <NavLink to="/" className="flex min-w-0 items-center gap-2.5">
-          <img src="/favicon.svg" alt="" className="size-10 rounded-xl" />
+          <img src="/logo.png" alt="" width={40} height={40} className="size-10 rounded-xl" />
           <span className="flex min-w-0 flex-col">
             <span className="text-lg font-extrabold leading-tight tracking-tight text-primary">{t('app.name')}</span>
             {subtitle && <span className="truncate text-xs font-medium text-slate-500">{subtitle}</span>}

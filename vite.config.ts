@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         registerType: 'prompt',
         injectRegister: false,
-        includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+        includeAssets: ['favicon.png', 'logo.png', 'apple-touch-icon.png'],
         manifest: {
           name: 'ParkShare',
           short_name: 'ParkShare',
@@ -51,6 +51,8 @@ export default defineConfig(({ mode }) => {
         },
         workbox: {
           globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+          // The branding sheet is only the source for `npm run icons`.
+          globIgnores: ['**/Pfarrweg Parking App Branding.png'],
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [/^\/api\//],
           cleanupOutdatedCaches: true,
