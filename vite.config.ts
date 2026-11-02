@@ -33,9 +33,9 @@ export default defineConfig(({ mode }) => {
         injectRegister: false,
         includeAssets: ['favicon.png', 'logo.png', 'apple-touch-icon.png'],
         manifest: {
-          name: 'ParkShare',
-          short_name: 'ParkShare',
-          description: 'Shared parking availability for our building',
+          name: 'Pfarrweg.APP',
+          short_name: 'Pfarrweg.APP',
+          description: 'Parken · Teilen · Gemeinsam',
           lang: 'de',
           start_url: '/',
           scope: '/',

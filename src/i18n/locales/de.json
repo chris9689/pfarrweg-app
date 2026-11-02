@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "ParkShare",
-    "title": "ParkShare – Freie Parkplätze",
+    "name": "Pfarrweg.APP",
+    "title": "Pfarrweg.APP – Freie Parkplätze",
     "spaceCount_one": "{{count}} Parkplatz",
     "spaceCount_other": "{{count}} Parkplätze"
   },
@@ -177,7 +177,7 @@
     "updateAvailable": "Eine neue Version der App ist verfügbar.",
     "update": "Aktualisieren",
     "installTitle": "App installieren",
-    "installText": "Fügen Sie ParkShare zum Startbildschirm hinzu, um schnell darauf zuzugreifen.",
+    "installText": "Fügen Sie Pfarrweg.APP zum Startbildschirm hinzu, um schnell darauf zuzugreifen.",
     "install": "Installieren",
     "iosHint": "Tippen Sie auf das Teilen-Symbol und dann auf „Zum Home-Bildschirm“.",
     "dismiss": "Nicht jetzt"

@@ -1,7 +1,7 @@
 {
   "app": {
-    "name": "ParkShare",
-    "title": "ParkShare – Parking availability",
+    "name": "Pfarrweg.APP",
+    "title": "Pfarrweg.APP – Parking availability",
     "spaceCount_one": "{{count}} parking space",
     "spaceCount_other": "{{count}} parking spaces"
   },
@@ -177,7 +177,7 @@
     "updateAvailable": "A new version of the app is available.",
     "update": "Update",
     "installTitle": "Install the app",
-    "installText": "Add ParkShare to your home screen for quick access.",
+    "installText": "Add Pfarrweg.APP to your home screen for quick access.",
     "install": "Install",
     "iosHint": "Tap the Share icon, then “Add to Home Screen”.",
     "dismiss": "Not now"

@@ -1,4 +1,4 @@
-# ParkShare – shared parking availability
+# Pfarrweg.APP – shared parking availability
 
 A small, mobile-first web app (PWA) for one residential building: **4 apartments, 8 parking spaces**.
 Residents mark when their own spaces are free; everybody sees at a glance which spaces are free **now**,
