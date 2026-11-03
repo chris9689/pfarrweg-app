@@ -6,12 +6,12 @@ import type { Formatters } from './format';
 /** Maps API / validation error codes to a translated, user-facing message. */
 export function errorMessage(err: unknown, t: TFunction, fmt: Formatters): string {
   const code = typeof err === 'string' ? err : err instanceof ApiError ? err.code : 'generic';
-  if (code === 'conflict' && err instanceof ApiError) {
-    const { spaceNumber, start, end } = err.details as { spaceNumber: number; start: string; end: string };
-    return t('errors.conflict', {
-      number: spaceNumber,
-      range: fmt.range(Date.parse(start), Date.parse(end), Date.now()),
+  const details = err instanceof ApiError ? (err.details as { spaceNumber?: number; start?: string; end?: string }) : {};
+  if (details.start && details.end && i18n.exists(`errors.${code}`)) {
+    return t(`errors.${code}`, {
+      number: details.spaceNumber,
+      range: fmt.range(Date.parse(details.start), Date.parse(details.end), Date.now()),
     });
   }
-  return i18n.exists(`errors.${code}`) ? t(`errors.${code}`) : t('errors.generic');
+  return i18n.exists(`errors.${code}`) ? t(`errors.${code}`, { number: details.spaceNumber }) : t('errors.generic');
 }

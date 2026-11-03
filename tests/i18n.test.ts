@@ -89,6 +89,10 @@ describe('translation resources', () => {
         'admin_not_configured',
         'apartment_has_spaces',
         'invalid_name',
+        'own_space',
+        'not_available',
+        'already_reserved',
+        'reserved',
         'network',
         'generic',
       ].map((c) => `errors.${c}`),
@@ -106,6 +110,8 @@ describe('translation resources', () => {
         'apartment.code_reset',
         'space.assigned',
         'space.unassigned',
+        'reservation.created',
+        'reservation.cancelled',
       ].map((a) => `activity.${a.replace('.', '_')}`),
     ];
     for (const key of dynamic) {
@@ -115,7 +121,7 @@ describe('translation resources', () => {
   });
 
   it('server activity actions all have a translation', () => {
-    const server = ['server/app.ts', 'server/schedules.ts'].map((p) => readFileSync(p, 'utf8')).join('\n');
+    const server = ['server/app.ts', 'server/schedules.ts', 'server/reservations.ts'].map((p) => readFileSync(p, 'utf8')).join('\n');
     const actions = new Set([...server.matchAll(/action: '([\w.]+)'/g)].map((m) => m[1]));
     actions.add('schedule.paused');
     actions.add('schedule.resumed');

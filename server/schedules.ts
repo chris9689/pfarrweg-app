@@ -6,6 +6,7 @@ import type { AppConfig } from './config.js';
 import type { Db } from './db.js';
 import { ApiError, badRequest, forbidden, notFound } from './errors.js';
 import * as repo from './repo.js';
+import { assertReservationsCovered } from './reservations.js';
 
 export type Actor = { kind: 'apartment'; apartmentId: string } | { kind: 'admin' };
 
@@ -156,6 +157,7 @@ export async function updateSchedule(
       const exc = keepExceptions ? exceptions : exceptions.filter((e) => e.scheduleId !== cur.id);
       const conflict = findConflict([updated], others, exc, now);
       if (conflict) throw conflictError(conflict, space.number);
+      await assertReservationsCovered(tx, space, [...others, updated], exc, now);
       await repo.updateSchedule(tx, cur.id, fieldsOf(updated));
       if (!keepExceptions) await repo.deleteExceptions(tx, cur.id);
       await log('schedule.updated', { scope });
@@ -175,6 +177,7 @@ export async function updateSchedule(
       const exc = [...exceptions.filter((e) => !(e.scheduleId === cur.id && e.occurrenceDate === date)), exception];
       const conflict = findConflict([cur], others, exc, now);
       if (conflict) throw conflictError(conflict, space.number);
+      await assertReservationsCovered(tx, space, [...others, cur], exc, now);
       await repo.upsertException(tx, exception);
       await log('occurrence.modified', { scope, occurrenceDate: date });
       return;
@@ -186,6 +189,7 @@ export async function updateSchedule(
     const exc = exceptions.filter((e) => !(e.scheduleId === cur.id && e.occurrenceDate >= date));
     const conflict = findConflict([truncated, next], others, exc, now);
     if (conflict) throw conflictError(conflict, space.number);
+    await assertReservationsCovered(tx, space, [...others, truncated, next], exc, now);
     await repo.updateSchedule(tx, cur.id, fieldsOf(truncated));
     await repo.deleteExceptions(tx, cur.id, date);
     await repo.insertSchedule(tx, space.id, fieldsOf({ ...next, isActive: true }));
@@ -195,6 +199,7 @@ export async function updateSchedule(
 
 export async function deleteSchedule(
   db: Db,
+  config: AppConfig,
   actor: Actor,
   scheduleId: string,
   scopeParam: unknown,
@@ -209,22 +214,34 @@ export async function deleteSchedule(
     if (scope === 'future' && (firstOccurrenceDate(schedule) ?? '') >= occurrenceDate) scope = 'series';
   }
 
-  await withSpace(db, space.id, schedule.id, async (tx, { current }) => {
+  await withSpace(db, space.id, schedule.id, async (tx, { current, others, exceptions }) => {
     const cur = current!;
+    const date = occurrenceDate as string;
     const details = logDetails(space.number, cur, { scope, occurrenceDate: scope === 'series' ? undefined : occurrenceDate });
+    const ownExceptions = (keep: (e: ScheduleException) => boolean) =>
+      exceptions.filter((e) => e.scheduleId !== cur.id || keep(e));
+    const cancelled: ScheduleException = {
+      id: 'draft',
+      scheduleId: cur.id,
+      occurrenceDate: date,
+      type: 'cancelled',
+      modifiedStart: null,
+      modifiedEnd: null,
+    };
+    const truncated: Schedule = { ...cur, recurrenceEndDate: scope === 'future' ? addDays(date, -1) : cur.recurrenceEndDate };
+
     if (scope === 'series') {
+      await assertReservationsCovered(tx, space, others, ownExceptions(() => false), config.now());
       await repo.deleteSchedule(tx, cur.id);
     } else if (scope === 'occurrence') {
-      await repo.upsertException(tx, {
-        scheduleId: cur.id,
-        occurrenceDate: occurrenceDate as string,
-        type: 'cancelled',
-        modifiedStart: null,
-        modifiedEnd: null,
-      });
+      const exc = [...ownExceptions((e) => e.occurrenceDate !== date), cancelled];
+      await assertReservationsCovered(tx, space, [...others, cur], exc, config.now());
+      await repo.upsertException(tx, cancelled);
     } else {
-      await repo.updateSchedule(tx, cur.id, { ...fieldsOf(cur), recurrenceEndDate: addDays(occurrenceDate as string, -1) });
-      await repo.deleteExceptions(tx, cur.id, occurrenceDate as string);
+      const exc = ownExceptions((e) => e.occurrenceDate < date);
+      await assertReservationsCovered(tx, space, [...others, truncated], exc, config.now());
+      await repo.updateSchedule(tx, cur.id, fieldsOf(truncated));
+      await repo.deleteExceptions(tx, cur.id, date);
     }
     await repo.logActivity(tx, {
       actor: actor.kind,
@@ -243,6 +260,8 @@ export async function setScheduleActive(db: Db, config: AppConfig, actor: Actor,
     if (active) {
       const conflict = findConflict([updated], others, exceptions, config.now());
       if (conflict) throw conflictError(conflict, space.number);
+    } else {
+      await assertReservationsCovered(tx, space, [...others, updated], exceptions, config.now());
     }
     await repo.updateSchedule(tx, updated.id, fieldsOf(updated));
     await repo.logActivity(tx, {

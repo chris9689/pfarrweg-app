@@ -26,7 +26,6 @@
     "loading": "Loading…",
     "retry": "Try again",
     "signOut": "Sign out",
-    "apartment": "Apartment {{name}}",
     "space": "Space {{number}}",
     "spaces": "Spaces {{numbers}}"
   },
@@ -35,13 +34,19 @@
     "availableUntil": "Available until {{time}}",
     "availableFrom": "Available from {{time}}",
     "timeLeft": "{{duration}} left",
-    "startsIn": "in {{duration}}"
+    "startsIn": "in {{duration}}",
+    "reservedUntil": "Reserved until {{time}}"
   },
   "overview": {
     "availableNow_zero": "No space is available right now",
     "availableNow_one": "{{count}} space available now",
     "availableNow_other": "{{count}} spaces available now",
-    "hint": "Available spaces may be used by any resident – no booking needed.",
+    "hint": "Free spaces may be used by any resident. Tap a free space to reserve it.",
+    "reservedBy": "by {{name}}",
+    "nextReservation": "{{name}}: {{range}}",
+    "legendAvailable": "Available",
+    "legendUpcoming": "Available soon",
+    "legendReserved": "Reserved",
     "updated": "Updated {{time}}",
     "upcoming": "Upcoming availability",
     "upcomingEmpty": "No availability planned for the next 7 days.",
@@ -74,8 +79,20 @@
     "help": "No code? Please ask the building administrator.",
     "privacy": "Access codes are never shown in the public overview."
   },
+  "reserve": {
+    "action": "Reserve",
+    "title": "Reserve space {{number}}",
+    "window": "Free: {{range}}",
+    "summary": "Your reservation: {{range}}",
+    "changeTimes": "Change times",
+    "submit": "Reserve",
+    "loginHint": "Enter your apartment's access code to reserve.",
+    "ownSpace": "This is your own parking space – no reservation needed.",
+    "outsideWindow": "Please choose a time within the free period."
+  },
   "manage": {
     "title": "My parking spaces",
+    "signedInAs": "Signed in as {{name}}",
     "noSpaces": "No parking spaces are assigned to your apartment yet.",
     "makeAvailable": "Make available",
     "planned": "Planned availability",
@@ -88,7 +105,13 @@
     "changed": "Changed",
     "editDate": "Edit {{date}}",
     "deleteDate": "Delete {{date}}",
-    "signedOut": "You have been signed out."
+    "signedOut": "You have been signed out.",
+    "myReservations": "My reservations",
+    "cancelReservation": "Cancel reservation",
+    "cancelShort": "Cancel",
+    "reservations": "Reserved by others",
+    "reservedBy": "{{name}}: {{range}}",
+    "reservedHint": "Reserved times can no longer be removed from your availability."
   },
   "recurrence": {
     "daily": "Every day",
@@ -134,7 +157,9 @@
     "deleteTitle": "Delete this availability?",
     "deleteText": "The space will be shown as occupied again for this period.",
     "deleteSeriesTitle": "Delete entire series?",
-    "deleteSeriesText": "All dates of this recurring availability will be removed."
+    "deleteSeriesText": "All dates of this recurring availability will be removed.",
+    "cancelReservationTitle": "Cancel this reservation?",
+    "cancelReservationText": "The space will be shown as free again."
   },
   "toast": {
     "created": "Saved. Space {{number}} is now marked as available.",
@@ -143,7 +168,9 @@
     "paused": "Recurring availability paused.",
     "resumed": "Recurring availability resumed.",
     "offlineReady": "The app is ready to open without a connection.",
-    "backOnline": "Back online – data refreshed."
+    "backOnline": "Back online – data refreshed.",
+    "reserved": "Reserved. Space {{number}} is yours: {{range}}.",
+    "reservationCancelled": "Reservation cancelled."
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -165,7 +192,11 @@
     "not_found": "This entry no longer exists.",
     "admin_not_configured": "Admin access has not been set up yet (ADMIN_PASSWORD or ADMIN_PASSWORD_HASH).",
     "apartment_has_spaces": "Assign this apartment's spaces to another apartment first.",
-    "invalid_name": "Please enter a name (max. 60 characters)."
+    "invalid_name": "Please enter a name (max. 60 characters).",
+    "own_space": "This is your own parking space – no reservation needed.",
+    "not_available": "Space {{number}} is not free for the whole chosen time.",
+    "already_reserved": "Space {{number}} is already reserved ({{range}}). Please choose a different time.",
+    "reserved": "Space {{number}} has been reserved ({{range}}). Reserved times can no longer be removed."
   },
   "offline": {
     "banner": "You are offline.",
@@ -189,16 +220,16 @@
     "signIn": "Sign in",
     "apartments": "Apartments",
     "addApartment": "Add apartment",
-    "apartmentName": "Apartment name or number",
+    "apartmentName": "Name (e.g. family name or apartment number)",
     "rename": "Rename",
     "codeSet": "Access code created on {{date}}",
     "codeMissing": "No access code yet – residents cannot sign in.",
     "newCode": "Create new access code",
     "newCodeConfirmTitle": "Create a new access code?",
-    "newCodeConfirmText": "The current code for apartment {{name}} stops working immediately and the apartment is signed out on all devices.",
-    "newCodeTitle": "New access code for apartment {{name}}",
+    "newCodeConfirmText": "The current code for “{{name}}” stops working immediately and the apartment is signed out on all devices.",
+    "newCodeTitle": "New access code for {{name}}",
     "newCodeHint": "Write this code down now and give it to the residents. It will not be shown again.",
-    "deleteApartmentTitle": "Delete apartment {{name}}?",
+    "deleteApartmentTitle": "Delete “{{name}}”?",
     "deleteApartmentText": "This cannot be undone.",
     "spaces": "Parking spaces",
     "assignedTo": "Assigned to",
@@ -206,6 +237,8 @@
     "noSpaces": "No spaces",
     "schedules": "Availability",
     "noSchedules": "No availability planned.",
+    "reservations": "Reservations",
+    "noReservations": "No reservations.",
     "activity": "Activity history",
     "noActivity": "No activity yet.",
     "administrator": "Administrator",
@@ -219,12 +252,14 @@
     "schedule_resumed": "Availability resumed for space {{space}}",
     "occurrence_modified": "Single date changed for space {{space}}",
     "occurrence_cancelled": "Single date cancelled for space {{space}}",
-    "apartment_created": "Apartment {{name}} added",
-    "apartment_renamed": "Apartment {{from}} renamed to {{to}}",
-    "apartment_deleted": "Apartment {{name}} deleted",
-    "apartment_code_reset": "New access code created for apartment {{apartment}}",
-    "space_assigned": "Space {{space}} assigned to apartment {{apartment}}",
+    "apartment_created": "Apartment “{{name}}” added",
+    "apartment_renamed": "“{{from}}” renamed to “{{to}}”",
+    "apartment_deleted": "Apartment “{{name}}” deleted",
+    "apartment_code_reset": "New access code created for {{apartment}}",
+    "space_assigned": "Space {{space}} assigned to {{apartment}}",
     "space_unassigned": "Space {{space}} no longer assigned",
+    "reservation_created": "Space {{space}} reserved",
+    "reservation_cancelled": "Reservation for space {{space}} cancelled",
     "unknown": "Other change"
   }
 }

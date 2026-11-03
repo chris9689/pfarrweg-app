@@ -1,7 +1,7 @@
 import { KeyRound, LogOut, Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { ActivityEntry, AdminApartment, AdminStateResponse, Schedule } from '../../shared/types';
+import type { ActivityEntry, AdminApartment, AdminStateResponse, Reservation, Schedule } from '../../shared/types';
 import { Alert, Button, Card, ConfirmSheet, IconButton, SectionTitle, Sheet, Spinner, useToast } from '../components/ui';
 import { api, ApiError } from '../lib/api';
 import { errorMessage } from '../lib/errors';
@@ -109,6 +109,7 @@ type Dialog =
   | { kind: 'code'; apartment: AdminApartment; code: string }
   | { kind: 'deleteApartment'; apartment: AdminApartment }
   | { kind: 'deleteSchedule'; schedule: Schedule }
+  | { kind: 'cancelReservation'; reservation: Reservation }
   | null;
 
 function AdminDashboard({
@@ -145,6 +146,7 @@ function AdminDashboard({
       await reload();
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) return onSignedOut();
+      setDialog(null);
       toast(errorMessage(err, t, fmt), 'error');
     } finally {
       setBusy(false);
@@ -208,7 +210,7 @@ function AdminDashboard({
                 ) : (
                   <div className="flex items-start gap-2">
                     <div className="min-w-0 flex-1">
-                      <p className="font-bold">{t('common.apartment', { name: a.name })}</p>
+                      <p className="font-bold">{a.name}</p>
                       <p className="text-sm text-slate-600">
                         {numbers.length ? t('common.spaces', { numbers: numbers.join(', ') }) : t('admin.noSpaces')}
                       </p>
@@ -284,7 +286,7 @@ function AdminDashboard({
                   <option value="">{t('admin.unassigned')}</option>
                   {data.apartments.map((a) => (
                     <option key={a.id} value={a.id}>
-                      {t('common.apartment', { name: a.name })}
+                      {a.name}
                     </option>
                   ))}
                 </select>
@@ -320,6 +322,34 @@ function AdminDashboard({
                     </IconButton>
                   )}
                   <IconButton label={t('common.delete')} disabled={disabled} onClick={() => setDialog({ kind: 'deleteSchedule', schedule: s })}>
+                    <Trash2 className="size-[18px]" aria-hidden />
+                  </IconButton>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      </section>
+
+      <section>
+        <SectionTitle>{t('admin.reservations')}</SectionTitle>
+        <Card className="p-2">
+          {(data.reservations ?? []).length === 0 ? (
+            <p className="p-2 text-sm text-slate-600">{t('admin.noReservations')}</p>
+          ) : (
+            <ul className="divide-y divide-slate-100">
+              {data.reservations.map((r) => (
+                <li key={r.id} className="flex items-center gap-2 p-2">
+                  <span className="w-10 shrink-0 text-center text-xl font-extrabold text-orange-700">{r.spaceNumber}</span>
+                  <span className="min-w-0 flex-1 text-sm">
+                    {fmt.range(Date.parse(r.start), Date.parse(r.end), now)}
+                    <span className="block text-xs text-slate-500">{r.apartmentName}</span>
+                  </span>
+                  <IconButton
+                    label={t('manage.cancelReservation')}
+                    disabled={disabled}
+                    onClick={() => setDialog({ kind: 'cancelReservation', reservation: r })}
+                  >
                     <Trash2 className="size-[18px]" aria-hidden />
                   </IconButton>
                 </li>
@@ -404,6 +434,19 @@ function AdminDashboard({
           void run(() => api('DELETE', `/api/admin/schedules/${dialog.schedule.id}?scope=series`))
         }
       />
+
+      <ConfirmSheet
+        open={dialog?.kind === 'cancelReservation'}
+        title={t('confirm.cancelReservationTitle')}
+        text={t('confirm.cancelReservationText')}
+        confirmLabel={t('manage.cancelReservation')}
+        busy={busy}
+        onClose={() => setDialog(null)}
+        onConfirm={() =>
+          dialog?.kind === 'cancelReservation' &&
+          void run(() => api('DELETE', `/api/admin/reservations/${dialog.reservation.id}`))
+        }
+      />
     </div>
   );
 }
@@ -423,7 +466,7 @@ function ActivityRow({ entry, fmt, now }: { entry: ActivityEntry; fmt: Formatter
         to: d.to,
       })
     : t('activity.unknown');
-  const actor = entry.actor === 'admin' ? t('admin.administrator') : t('common.apartment', { name: entry.apartmentName ?? '–' });
+  const actor = entry.actor === 'admin' ? t('admin.administrator') : (entry.apartmentName ?? '–');
   const period =
     entry.action === 'occurrence.cancelled' && typeof d.occurrenceDate === 'string'
       ? fmt.isoDate(d.occurrenceDate, true)

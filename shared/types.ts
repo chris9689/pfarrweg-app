@@ -61,12 +61,32 @@ export interface AvailabilityBlock {
   end: string;
 }
 
+export interface ReservationBlock {
+  space: number;
+  start: string;
+  end: string;
+  /** Name of the reserving apartment. */
+  apartment: string;
+}
+
+export interface Reservation {
+  id: string;
+  parkingSpaceId: string;
+  spaceNumber: number;
+  apartmentId: string;
+  apartmentName: string;
+  start: string;
+  end: string;
+  createdAt: string;
+}
+
 export interface OverviewResponse {
   timezone: string;
   buildingName: string;
   generatedAt: string;
   spaces: number[];
   blocks: AvailabilityBlock[];
+  reservations: ReservationBlock[];
 }
 
 export interface SpaceInfo {
@@ -80,6 +100,10 @@ export interface MeResponse {
   spaces: SpaceInfo[];
   schedules: Schedule[];
   exceptions: ScheduleException[];
+  /** Reservations made by this apartment. */
+  reservations: Reservation[];
+  /** Reservations other apartments made on this apartment's spaces. */
+  spaceReservations: Reservation[];
 }
 
 export interface AdminApartment {
@@ -101,6 +125,7 @@ export interface AdminStateResponse {
   spaces: AdminSpace[];
   schedules: Schedule[];
   exceptions: ScheduleException[];
+  reservations: Reservation[];
 }
 
 export interface ActivityEntry {

@@ -26,7 +26,6 @@
     "loading": "Wird geladen…",
     "retry": "Erneut versuchen",
     "signOut": "Abmelden",
-    "apartment": "Wohnung {{name}}",
     "space": "Parkplatz {{number}}",
     "spaces": "Parkplätze {{numbers}}"
   },
@@ -35,13 +34,19 @@
     "availableUntil": "Frei bis {{time}}",
     "availableFrom": "Frei ab {{time}}",
     "timeLeft": "noch {{duration}}",
-    "startsIn": "in {{duration}}"
+    "startsIn": "in {{duration}}",
+    "reservedUntil": "Reserviert bis {{time}}"
   },
   "overview": {
     "availableNow_zero": "Im Moment ist kein Parkplatz frei",
     "availableNow_one": "{{count}} Parkplatz ist jetzt frei",
     "availableNow_other": "{{count}} Parkplätze sind jetzt frei",
-    "hint": "Freie Parkplätze dürfen alle Bewohner nutzen – ohne Reservierung.",
+    "hint": "Freie Parkplätze dürfen alle Bewohner nutzen. Tippen Sie auf einen freien Platz, um ihn zu reservieren.",
+    "reservedBy": "von {{name}}",
+    "nextReservation": "{{name}}: {{range}}",
+    "legendAvailable": "Frei",
+    "legendUpcoming": "Demnächst frei",
+    "legendReserved": "Reserviert",
     "updated": "Stand {{time}}",
     "upcoming": "Demnächst frei",
     "upcomingEmpty": "In den nächsten 7 Tagen ist keine Freigabe geplant.",
@@ -74,8 +79,20 @@
     "help": "Kein Code? Bitte wenden Sie sich an die Hausverwaltung.",
     "privacy": "Zugangscodes werden in der öffentlichen Übersicht nie angezeigt."
   },
+  "reserve": {
+    "action": "Reservieren",
+    "title": "Parkplatz {{number}} reservieren",
+    "window": "Frei: {{range}}",
+    "summary": "Ihre Reservierung: {{range}}",
+    "changeTimes": "Zeiten ändern",
+    "submit": "Reservieren",
+    "loginHint": "Geben Sie den Zugangscode Ihrer Wohnung ein, um zu reservieren.",
+    "ownSpace": "Das ist Ihr eigener Parkplatz – keine Reservierung nötig.",
+    "outsideWindow": "Bitte wählen Sie eine Zeit innerhalb des freien Zeitraums."
+  },
   "manage": {
     "title": "Meine Parkplätze",
+    "signedInAs": "Angemeldet als {{name}}",
     "noSpaces": "Ihrer Wohnung sind noch keine Parkplätze zugeordnet.",
     "makeAvailable": "Parkplatz freigeben",
     "planned": "Geplante Freigaben",
@@ -88,7 +105,13 @@
     "changed": "Geändert",
     "editDate": "{{date}} bearbeiten",
     "deleteDate": "{{date}} löschen",
-    "signedOut": "Sie wurden abgemeldet."
+    "signedOut": "Sie wurden abgemeldet.",
+    "myReservations": "Meine Reservierungen",
+    "cancelReservation": "Reservierung stornieren",
+    "cancelShort": "Stornieren",
+    "reservations": "Von anderen reserviert",
+    "reservedBy": "{{name}}: {{range}}",
+    "reservedHint": "Reservierte Zeiten können nicht mehr aus Ihrer Freigabe entfernt werden."
   },
   "recurrence": {
     "daily": "Täglich",
@@ -134,7 +157,9 @@
     "deleteTitle": "Diese Freigabe löschen?",
     "deleteText": "Der Parkplatz wird für diesen Zeitraum wieder als belegt angezeigt.",
     "deleteSeriesTitle": "Gesamte Serie löschen?",
-    "deleteSeriesText": "Alle Termine dieser wiederkehrenden Freigabe werden entfernt."
+    "deleteSeriesText": "Alle Termine dieser wiederkehrenden Freigabe werden entfernt.",
+    "cancelReservationTitle": "Reservierung stornieren?",
+    "cancelReservationText": "Der Parkplatz wird wieder als frei angezeigt."
   },
   "toast": {
     "created": "Gespeichert. Parkplatz {{number}} ist jetzt freigegeben.",
@@ -143,7 +168,9 @@
     "paused": "Wiederkehrende Freigabe pausiert.",
     "resumed": "Wiederkehrende Freigabe fortgesetzt.",
     "offlineReady": "Die App kann jetzt auch ohne Verbindung geöffnet werden.",
-    "backOnline": "Wieder online – Daten aktualisiert."
+    "backOnline": "Wieder online – Daten aktualisiert.",
+    "reserved": "Reserviert. Parkplatz {{number}} ist für Sie gesichert: {{range}}.",
+    "reservationCancelled": "Reservierung storniert."
   },
   "errors": {
     "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
@@ -165,7 +192,11 @@
     "not_found": "Dieser Eintrag existiert nicht mehr.",
     "admin_not_configured": "Der Verwaltungszugang ist noch nicht eingerichtet (ADMIN_PASSWORD oder ADMIN_PASSWORD_HASH).",
     "apartment_has_spaces": "Bitte ordnen Sie die Parkplätze dieser Wohnung zuerst einer anderen Wohnung zu.",
-    "invalid_name": "Bitte geben Sie eine Bezeichnung ein (max. 60 Zeichen)."
+    "invalid_name": "Bitte geben Sie eine Bezeichnung ein (max. 60 Zeichen).",
+    "own_space": "Das ist Ihr eigener Parkplatz – keine Reservierung nötig.",
+    "not_available": "Parkplatz {{number}} ist nicht im gesamten gewählten Zeitraum frei.",
+    "already_reserved": "Parkplatz {{number}} ist bereits reserviert ({{range}}). Bitte wählen Sie eine andere Zeit.",
+    "reserved": "Parkplatz {{number}} wurde reserviert ({{range}}). Reservierte Zeiten können nicht mehr entfernt werden."
   },
   "offline": {
     "banner": "Sie sind offline.",
@@ -189,16 +220,16 @@
     "signIn": "Anmelden",
     "apartments": "Wohnungen",
     "addApartment": "Wohnung hinzufügen",
-    "apartmentName": "Bezeichnung oder Nummer der Wohnung",
+    "apartmentName": "Name (z. B. Familienname oder Wohnungsnummer)",
     "rename": "Umbenennen",
     "codeSet": "Zugangscode erstellt am {{date}}",
     "codeMissing": "Noch kein Zugangscode – Bewohner können sich nicht anmelden.",
     "newCode": "Neuen Zugangscode erstellen",
     "newCodeConfirmTitle": "Neuen Zugangscode erstellen?",
-    "newCodeConfirmText": "Der bisherige Code für Wohnung {{name}} wird sofort ungültig und die Wohnung wird auf allen Geräten abgemeldet.",
-    "newCodeTitle": "Neuer Zugangscode für Wohnung {{name}}",
+    "newCodeConfirmText": "Der bisherige Code für „{{name}}“ wird sofort ungültig und die Wohnung wird auf allen Geräten abgemeldet.",
+    "newCodeTitle": "Neuer Zugangscode für {{name}}",
     "newCodeHint": "Notieren Sie diesen Code jetzt und geben Sie ihn an die Bewohner weiter. Er wird nicht erneut angezeigt.",
-    "deleteApartmentTitle": "Wohnung {{name}} löschen?",
+    "deleteApartmentTitle": "„{{name}}“ löschen?",
     "deleteApartmentText": "Dies kann nicht rückgängig gemacht werden.",
     "spaces": "Parkplätze",
     "assignedTo": "Zugeordnet zu",
@@ -206,6 +237,8 @@
     "noSpaces": "Keine Parkplätze",
     "schedules": "Freigaben",
     "noSchedules": "Keine Freigaben geplant.",
+    "reservations": "Reservierungen",
+    "noReservations": "Keine Reservierungen.",
     "activity": "Aktivitätsverlauf",
     "noActivity": "Noch keine Aktivitäten.",
     "administrator": "Verwaltung",
@@ -219,12 +252,14 @@
     "schedule_resumed": "Freigabe für Parkplatz {{space}} fortgesetzt",
     "occurrence_modified": "Einzelner Termin für Parkplatz {{space}} geändert",
     "occurrence_cancelled": "Einzelner Termin für Parkplatz {{space}} abgesagt",
-    "apartment_created": "Wohnung {{name}} hinzugefügt",
-    "apartment_renamed": "Wohnung {{from}} umbenannt in {{to}}",
-    "apartment_deleted": "Wohnung {{name}} gelöscht",
-    "apartment_code_reset": "Neuer Zugangscode für Wohnung {{apartment}} erstellt",
-    "space_assigned": "Parkplatz {{space}} der Wohnung {{apartment}} zugeordnet",
+    "apartment_created": "Wohnung „{{name}}“ hinzugefügt",
+    "apartment_renamed": "„{{from}}“ umbenannt in „{{to}}“",
+    "apartment_deleted": "Wohnung „{{name}}“ gelöscht",
+    "apartment_code_reset": "Neuer Zugangscode für {{apartment}} erstellt",
+    "space_assigned": "Parkplatz {{space}} zugeordnet: {{apartment}}",
     "space_unassigned": "Parkplatz {{space}} keiner Wohnung mehr zugeordnet",
+    "reservation_created": "Parkplatz {{space}} reserviert",
+    "reservation_cancelled": "Reservierung für Parkplatz {{space}} storniert",
     "unknown": "Sonstige Änderung"
   }
 }

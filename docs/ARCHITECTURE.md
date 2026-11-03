@@ -38,6 +38,7 @@ flowchart LR
 | `parking_spaces` | `space_number` (unique), `apartment_id` (nullable, configurable) |
 | `availability_schedules` | one row per one-off period **or** recurring series: first occurrence `start_datetime`/`end_datetime` (UTC), `recurrence_type` (`none`/`daily`/`weekly`/`weekdays`), `recurrence_days` (ISO 1–7), `recurrence_end_date` (local date, inclusive), `timezone`, `is_active` |
 | `availability_exceptions` | per-occurrence overrides keyed by `(schedule_id, occurrence_date)`: `cancelled` or `modified` (new start/end) |
+| `reservations` | concrete period (UTC start/end) on a space, reserved by an apartment; deleted when cancelled |
 | `sessions` | SHA-256 of session tokens, kind (`apartment`/`admin`), expiry |
 | `login_attempts` | hashed client key + result, for rate limiting |
 | `activity_log` | who did what (actor, action, space, apartment, JSON details) |
@@ -98,6 +99,18 @@ sequenceDiagram
 
 The per-space advisory lock serialises concurrent edits so two requests cannot create overlapping periods.
 Weekly patterns repeat, so checking one year (371 days) beyond the latest start also covers all DST variations.
+
+## Reservations
+
+- A reservation must lie completely inside the space's availability, must not overlap another reservation and
+  cannot be made on the apartment's own spaces. Checked server-side under the same per-space lock as availability.
+- Status: reserved time is subtracted from availability (`freePeriods`). A space is **reserved** while a
+  reservation is running, otherwise available/upcoming based on the remaining free periods.
+- Owner protection: every availability change (edit, delete, pause – also by the admin) is re-validated; if
+  any future reservation would no longer be covered, the change is refused (`409 reserved`).
+- Only the reserving apartment or the administrator can cancel a reservation.
+- `GET /api/overview` adds `reservations: { space, start, end, apartment }[]`; `/api/me` adds the apartment's
+  own reservations and reservations on its spaces. The change was purely additive (new table, new fields).
 
 ## Authentication and authorisation
 

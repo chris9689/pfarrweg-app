@@ -114,6 +114,54 @@ test('recurring availability: create, edit one date, edit series, delete series'
   await expect(card.getByText('Nothing planned')).toBeVisible();
 });
 
+async function signOut(page: Page) {
+  await page.goto('/my');
+  await page.getByRole('button', { name: 'Sign out' }).click();
+  await expect(page.getByLabel('Access code')).toBeVisible();
+}
+
+test('reservation: another apartment reserves a free space, owner cannot remove it, reserver cancels', async ({ page }) => {
+  // Owner (apartment 1) makes space 2 available for the rest of the day
+  await login(page, '11111111');
+  const ownerCard = page.getByTestId('my-space-2');
+  await ownerCard.getByRole('button', { name: 'Make available' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByText('Saved. Space 2 is now marked as available.')).toBeVisible();
+  await signOut(page);
+
+  // Apartment 3 taps the free bay on the overview, enters its code and reserves
+  await page.goto('/');
+  await page.getByTestId('bay-2').getByRole('button').click();
+  const dialog = page.getByRole('dialog', { name: 'Reserve space 2' });
+  await dialog.getByLabel('Access code').fill('33333333');
+  await dialog.getByRole('button', { name: 'Continue' }).click();
+  await expect(dialog.getByTestId('reserve-summary')).toBeVisible();
+  await dialog.getByRole('button', { name: 'Reserve' }).click();
+  await expect(page.getByText(/Reserved\. Space 2 is yours/)).toBeVisible();
+  await expect(page.getByTestId('bay-2')).toHaveAttribute('data-status', 'reserved');
+  await expect(page.getByTestId('space-2')).toContainText('by 3');
+
+  // Owner sees the reservation and cannot delete the availability
+  await signOut(page);
+  await login(page, '11111111');
+  await expect(ownerCard.getByText(/^3: /)).toBeVisible();
+  await ownerCard.getByRole('button', { name: 'Delete', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
+  await expect(page.getByText(/has been reserved/)).toBeVisible();
+  await signOut(page);
+
+  // Reserver cancels; then the owner can remove the availability again
+  await login(page, '33333333');
+  await page.getByTestId('my-reservations').getByRole('button', { name: /Cancel reservation/ }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Cancel reservation' }).click();
+  await expect(page.getByText('Reservation cancelled.')).toBeVisible();
+  await signOut(page);
+  await login(page, '11111111');
+  await ownerCard.getByRole('button', { name: 'Delete', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
+  await expect(page.getByText('Availability deleted.')).toBeVisible();
+});
+
 test('the complete workflow works in German', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Deutsch' }).click();
@@ -145,7 +193,7 @@ test('administrator can issue a new access code that residents can use', async (
   await page.getByRole('button', { name: 'Sign out' }).click();
 
   await login(page, code);
-  await expect(page.getByText('Apartment 4')).toBeVisible();
+  await expect(page.getByText('Signed in as 4')).toBeVisible();
   await expect(page.getByTestId('my-space-7')).toBeVisible();
   await expect(page.getByTestId('my-space-1')).toHaveCount(0);
 });

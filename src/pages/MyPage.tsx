@@ -1,10 +1,11 @@
-import { CalendarDays, KeyRound, LogOut, Pause, Pencil, Play, Plus, Repeat, Trash2 } from 'lucide-react';
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { BookmarkCheck, CalendarDays, KeyRound, LogOut, Pause, Pencil, Play, Plus, Repeat, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DAY_MS, expandAll, expandSchedule, templateOf } from '../../shared/recurrence';
 import { spaceState } from '../../shared/status';
-import type { EditScope, MeResponse, Occurrence, Schedule, SpaceInfo } from '../../shared/types';
+import type { EditScope, MeResponse, Occurrence, Reservation, Schedule, SpaceInfo } from '../../shared/types';
 import { AvailabilityForm, type FormMode } from '../components/AvailabilityForm';
+import { CodeLoginForm } from '../components/CodeLogin';
 import { Alert, Button, Card, ConfirmSheet, IconButton, Sheet, Spinner, SpaceTile, StatusPill, useToast } from '../components/ui';
 import { api, ApiError } from '../lib/api';
 import { errorMessage } from '../lib/errors';
@@ -52,52 +53,14 @@ function LoadError({ onRetry }: { onRetry: () => void }) {
 
 function LoginForm({ onSuccess }: { onSuccess: () => Promise<void> }) {
   const { t } = useTranslation();
-  const online = useOnline();
-  const [code, setCode] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const fmt = useFormatters('UTC');
-
-  async function submit(e: FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    try {
-      await api('POST', '/api/auth/login', { code });
-      await onSuccess();
-    } catch (err) {
-      setError(errorMessage(err, t, fmt));
-      setBusy(false);
-    }
-  }
-
   return (
     <Card className="mx-auto mt-2 max-w-md p-6">
       <span className="mb-4 flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
         <KeyRound className="size-6" aria-hidden />
       </span>
       <h1 className="text-2xl font-extrabold tracking-tight">{t('login.title')}</h1>
-      <p className="mt-1 text-slate-600">{t('login.intro')}</p>
-      <form onSubmit={submit} className="mt-6 flex flex-col gap-4">
-        <div>
-          <label htmlFor="access-code" className="mb-1.5 block text-sm font-semibold">
-            {t('login.codeLabel')}
-          </label>
-          <input
-            id="access-code"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={16}
-            value={code}
-            onChange={(e) => setCode(e.target.value.replace(/[^\d ]/g, ''))}
-            className="h-14 w-full rounded-xl border border-slate-300 bg-white text-center text-2xl font-bold tracking-[0.3em] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-        </div>
-        {error && <Alert>{error}</Alert>}
-        <Button type="submit" disabled={busy || !online || code.replace(/\D/g, '').length < 6} busy={busy}>
-          {busy ? t('login.checking') : t('login.submit')}
-        </Button>
-      </form>
+      <p className="mb-6 mt-1 text-slate-600">{t('login.intro')}</p>
+      <CodeLoginForm onSuccess={onSuccess} />
       <ul className="mt-6 flex flex-col gap-1.5 text-sm text-slate-600">
         <li>{t('login.remember')}</li>
         <li>{t('login.help')}</li>
@@ -110,6 +73,7 @@ function LoginForm({ onSuccess }: { onSuccess: () => Promise<void> }) {
 type Pending =
   | { kind: 'scope'; action: 'edit' | 'delete'; schedule: Schedule; occurrence: Occurrence }
   | { kind: 'confirmDelete'; schedule: Schedule; series: boolean }
+  | { kind: 'cancelReservation'; reservation: Reservation }
   | null;
 
 function ManageSpaces({ data, reload, onSignedOut }: { data: MeResponse; reload: () => Promise<void>; onSignedOut: () => void }) {
@@ -136,6 +100,7 @@ function ManageSpaces({ data, reload, onSignedOut }: { data: MeResponse; reload:
       await refreshAll();
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) return onSignedOut();
+      setPending(null);
       toast(errorMessage(err, t, fmt), 'error');
     } finally {
       setBusy(false);
@@ -191,7 +156,7 @@ function ManageSpaces({ data, reload, onSignedOut }: { data: MeResponse; reload:
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">{t('manage.title')}</h1>
-          <p className="text-slate-600">{t('common.apartment', { name: data.apartment.name })}</p>
+          <p className="text-slate-600">{t('manage.signedInAs', { name: data.apartment.name })}</p>
         </div>
         <Button variant="ghost" size="sm" className="shrink-0" onClick={signOut}>
           <LogOut className="size-4" aria-hidden />
@@ -200,6 +165,38 @@ function ManageSpaces({ data, reload, onSignedOut }: { data: MeResponse; reload:
       </div>
 
       {!online && <Alert tone="info">{t('offline.editingDisabled')}</Alert>}
+
+      {(data.reservations ?? []).length > 0 && (
+        <section aria-labelledby="my-reservations-title" data-testid="my-reservations">
+          <h2 id="my-reservations-title" className="mb-2 text-lg font-bold">
+            {t('manage.myReservations')}
+          </h2>
+          <Card className="p-2">
+            <ul className="flex flex-col divide-y divide-slate-100">
+              {data.reservations.map((r) => (
+                <li key={r.id} className="flex items-center gap-3 p-2">
+                  <SpaceTile number={r.spaceNumber} kind="reserved" size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold">{t('common.space', { number: r.spaceNumber })}</p>
+                    <p className="text-sm text-slate-600">{fmt.range(Date.parse(r.start), Date.parse(r.end), now)}</p>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="shrink-0"
+                    aria-label={`${t('manage.cancelReservation')}: ${t('common.space', { number: r.spaceNumber })}`}
+                    disabled={!online || busy}
+                    onClick={() => setPending({ kind: 'cancelReservation', reservation: r })}
+                  >
+                    {t('manage.cancelShort')}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </section>
+      )}
+
       {data.spaces.length === 0 && <Alert tone="info">{t('manage.noSpaces')}</Alert>}
 
       {data.spaces.map((space) => (
@@ -273,6 +270,19 @@ function ManageSpaces({ data, reload, onSignedOut }: { data: MeResponse; reload:
       </Sheet>
 
       <ConfirmSheet
+        open={pending?.kind === 'cancelReservation'}
+        title={t('confirm.cancelReservationTitle')}
+        text={t('confirm.cancelReservationText')}
+        confirmLabel={t('manage.cancelReservation')}
+        busy={busy}
+        onClose={() => setPending(null)}
+        onConfirm={() =>
+          pending?.kind === 'cancelReservation' &&
+          run(() => api('DELETE', `/api/reservations/${pending.reservation.id}`), t('toast.reservationCancelled'))
+        }
+      />
+
+      <ConfirmSheet
         open={pending?.kind === 'confirmDelete'}
         title={pending?.kind === 'confirmDelete' && pending.series ? t('confirm.deleteSeriesTitle') : t('confirm.deleteTitle')}
         text={pending?.kind === 'confirmDelete' && pending.series ? t('confirm.deleteSeriesText') : t('confirm.deleteText')}
@@ -311,7 +321,12 @@ function SpaceCard({
 }) {
   const { t } = useTranslation();
   const schedules = data.schedules.filter((s) => s.parkingSpaceId === space.id);
-  const state = spaceState(expandAll(schedules, data.exceptions, now, now + 8 * DAY_MS), now);
+  const reserved = (data.spaceReservations ?? []).filter((r) => r.parkingSpaceId === space.id);
+  const state = spaceState(
+    expandAll(schedules, data.exceptions, now, now + 8 * DAY_MS),
+    now,
+    reserved.map((r) => ({ start: Date.parse(r.start), end: Date.parse(r.end), by: r.apartmentName })),
+  );
 
   return (
     <section aria-labelledby={`space-title-${space.number}`} data-testid={`my-space-${space.number}`}>
@@ -331,6 +346,24 @@ function SpaceCard({
           {t('manage.makeAvailable')}
         </Button>
       </div>
+
+      {reserved.length > 0 && (
+        <div className="border-t border-slate-100 px-4 py-3">
+          <h3 className="mb-1 text-sm font-semibold text-slate-500">{t('manage.reservations')}</h3>
+          <ul className="flex flex-col gap-1">
+            {reserved.map((r) => (
+              <li key={r.id} className="flex items-start gap-2 text-sm text-orange-900">
+                <BookmarkCheck className="mt-0.5 size-4 shrink-0 text-orange-700" aria-hidden />
+                {t('manage.reservedBy', {
+                  name: r.apartmentName,
+                  range: fmt.range(Date.parse(r.start), Date.parse(r.end), now),
+                })}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1 text-xs text-slate-500">{t('manage.reservedHint')}</p>
+        </div>
+      )}
 
       <div className="border-t border-slate-100 px-4 py-3">
         <h3 className="mb-1 text-sm font-semibold text-slate-500">{t('manage.planned')}</h3>

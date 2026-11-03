@@ -1,4 +1,4 @@
-import type { ActivityEntry, Schedule, ScheduleException } from '../shared/types.js';
+import type { ActivityEntry, Reservation, Schedule, ScheduleException } from '../shared/types.js';
 import type { Db } from './db.js';
 
 const iso = (v: unknown) => (v instanceof Date ? v : new Date(String(v))).toISOString();
@@ -68,6 +68,11 @@ export async function listSpaces(db: Db, apartmentId?: string): Promise<SpaceRow
 
 export async function getSpace(db: Db, id: string): Promise<SpaceRow | null> {
   const [row] = await db.query('select * from parking_spaces where id = $1', [id]);
+  return row ? toSpace(row) : null;
+}
+
+export async function getSpaceByNumber(db: Db, spaceNumber: number): Promise<SpaceRow | null> {
+  const [row] = await db.query('select * from parking_spaces where space_number = $1', [spaceNumber]);
   return row ? toSpace(row) : null;
 }
 
@@ -256,6 +261,68 @@ export async function countFailedAttempts(db: Db, kind: SessionRow['kind'], sinc
 export async function purgeStaleAuthData(db: Db, now: Date): Promise<void> {
   await db.query('delete from sessions where expires_at < $1', [now]);
   await db.query("delete from login_attempts where attempted_at < $1::timestamptz - interval '2 days'", [now]);
+}
+
+// ---------- reservations ----------
+
+const toReservation = (r: Record<string, unknown>): Reservation => ({
+  id: r.id as string,
+  parkingSpaceId: r.parking_space_id as string,
+  spaceNumber: Number(r.space_number),
+  apartmentId: r.apartment_id as string,
+  apartmentName: r.apartment_name as string,
+  start: iso(r.start_datetime),
+  end: iso(r.end_datetime),
+  createdAt: iso(r.created_at),
+});
+
+const RESERVATION_SELECT = `select r.id, r.parking_space_id, s.space_number, r.apartment_id, a.name as apartment_name,
+    r.start_datetime, r.end_datetime, r.created_at
+  from reservations r
+  join parking_spaces s on s.id = r.parking_space_id
+  join apartments a on a.id = r.apartment_id`;
+
+/** Reservations still running or in the future, optionally filtered. */
+export async function listReservations(
+  db: Db,
+  endsAfter: Date,
+  filter: { spaceIds?: string[]; apartmentId?: string } = {},
+): Promise<Reservation[]> {
+  const conditions = ['r.end_datetime > $1'];
+  const params: unknown[] = [endsAfter];
+  if (filter.spaceIds) {
+    params.push(pgArray(filter.spaceIds));
+    conditions.push(`r.parking_space_id = any($${params.length}::uuid[])`);
+  }
+  if (filter.apartmentId) {
+    params.push(filter.apartmentId);
+    conditions.push(`r.apartment_id = $${params.length}`);
+  }
+  const rows = await db.query(
+    `${RESERVATION_SELECT} where ${conditions.join(' and ')} order by r.start_datetime`,
+    params,
+  );
+  return rows.map(toReservation);
+}
+
+export async function getReservation(db: Db, id: string): Promise<Reservation | null> {
+  const [row] = await db.query(`${RESERVATION_SELECT} where r.id = $1`, [id]);
+  return row ? toReservation(row) : null;
+}
+
+export async function insertReservation(
+  db: Db,
+  r: { spaceId: string; apartmentId: string; start: string; end: string },
+): Promise<string> {
+  const [row] = await db.query<{ id: string }>(
+    'insert into reservations (parking_space_id, apartment_id, start_datetime, end_datetime) values ($1, $2, $3, $4) returning id',
+    [r.spaceId, r.apartmentId, r.start, r.end],
+  );
+  return row.id;
+}
+
+export async function deleteReservation(db: Db, id: string): Promise<void> {
+  await db.query('delete from reservations where id = $1', [id]);
 }
 
 // ---------- activity log ----------

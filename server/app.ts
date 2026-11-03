@@ -10,6 +10,7 @@ import type { AppConfig } from './config.js';
 import type { Db } from './db.js';
 import { ApiError, badRequest, forbidden, notFound, unauthorized } from './errors.js';
 import * as repo from './repo.js';
+import * as reservations from './reservations.js';
 import * as schedules from './schedules.js';
 import { isUuid, type Actor } from './schedules.js';
 import { generateAccessCode, hashSecret, newSessionToken, normalizeCode, sha256, verifySecret } from './security.js';
@@ -117,12 +118,17 @@ export function createApp({ db, config }: { db: Db; config: AppConfig }) {
         end: new Date(b.end).toISOString(),
       })),
     );
+    const windowEnd = t + OVERVIEW_DAYS * DAY_MS;
+    const reserved = (await repo.listReservations(db, new Date(t)))
+      .filter((r) => Date.parse(r.start) < windowEnd)
+      .map((r) => ({ space: r.spaceNumber, start: r.start, end: r.end, apartment: r.apartmentName }));
     const body: OverviewResponse = {
       timezone: config.timezone,
       buildingName: config.buildingName,
       generatedAt: new Date(t).toISOString(),
       spaces: spaces.map((s) => s.number),
       blocks,
+      reservations: reserved,
     };
     return body;
   };
@@ -177,8 +183,22 @@ export function createApp({ db, config }: { db: Db; config: AppConfig }) {
         db,
         list.map((s) => s.id),
       ),
+      reservations: await repo.listReservations(db, new Date(t), { apartmentId }),
+      spaceReservations: spaces.length
+        ? await repo.listReservations(db, new Date(t), { spaceIds: spaces.map((s) => s.id) })
+        : [],
     };
     return body;
+  };
+
+  const createReservation: Handler = async (ctx) => {
+    const { apartmentId } = await apartmentSession(ctx);
+    return { reservation: await reservations.createReservation(db, config, apartmentId, ctx.body) };
+  };
+
+  const cancelReservation: Handler = async (ctx) => {
+    await reservations.cancelReservation(db, await actorFor(ctx), ctx.params[0]);
+    return { ok: true };
   };
 
   const createSchedule: Handler = async (ctx) => ({
@@ -193,6 +213,7 @@ export function createApp({ db, config }: { db: Db; config: AppConfig }) {
   const deleteSchedule: Handler = async (ctx) => {
     await schedules.deleteSchedule(
       db,
+      config,
       await actorFor(ctx),
       ctx.params[0],
       ctx.query.get('scope'),
@@ -263,6 +284,7 @@ export function createApp({ db, config }: { db: Db; config: AppConfig }) {
         db,
         list.map((s) => s.id),
       ),
+      reservations: await repo.listReservations(db, new Date(t)),
     };
     return body;
   };
@@ -348,9 +370,15 @@ export function createApp({ db, config }: { db: Db; config: AppConfig }) {
     return { ok: true };
   };
 
+  const adminCancelReservation: Handler = async (ctx) => {
+    await reservations.cancelReservation(db, { kind: 'admin' }, ctx.params[0]);
+    return { ok: true };
+  };
+
   const adminDeleteSchedule: Handler = async (ctx) => {
     await schedules.deleteSchedule(
       db,
+      config,
       { kind: 'admin' },
       ctx.params[0],
       ctx.query.get('scope'),
@@ -368,6 +396,8 @@ export function createApp({ db, config }: { db: Db; config: AppConfig }) {
     ['PUT', /^\/api\/schedules\/([^/]+)$/, updateSchedule],
     ['DELETE', /^\/api\/schedules\/([^/]+)$/, deleteSchedule],
     ['POST', /^\/api\/schedules\/([^/]+)\/(pause|resume)$/, pauseResume],
+    ['POST', /^\/api\/reservations$/, createReservation],
+    ['DELETE', /^\/api\/reservations\/([^/]+)$/, cancelReservation],
     ['POST', /^\/api\/admin\/login$/, adminLogin],
     ['POST', /^\/api\/admin\/logout$/, adminLogout],
     ['GET', /^\/api\/admin\/state$/, admin(adminState)],
@@ -379,6 +409,7 @@ export function createApp({ db, config }: { db: Db; config: AppConfig }) {
     ['PATCH', /^\/api\/admin\/spaces\/([^/]+)$/, admin(assignSpace)],
     ['POST', /^\/api\/admin\/schedules\/([^/]+)\/(pause|resume)$/, admin(adminPauseResume)],
     ['DELETE', /^\/api\/admin\/schedules\/([^/]+)$/, admin(adminDeleteSchedule)],
+    ['DELETE', /^\/api\/admin\/reservations\/([^/]+)$/, admin(adminCancelReservation)],
   ];
 
   /** Blocks cross-site form posts and requests from foreign origins (cookies are also SameSite=Strict). */

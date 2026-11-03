@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { findConflict } from '../shared/conflicts';
-import { buildOverview, spaceState } from '../shared/status';
+import { buildOverview, freePeriods, spaceState } from '../shared/status';
 import { validateScheduleInput } from '../shared/validation';
 import { at, exception, schedule, TZ, utc } from './helpers';
 
@@ -52,6 +52,45 @@ describe('space status', () => {
       [2, 'upcoming'],
       [3, 'available'],
       [8, 'upcoming'],
+    ]);
+  });
+});
+
+describe('space status with reservations', () => {
+  const free = [{ start: at('2026-11-02T08:00'), end: at('2026-11-02T18:00') }];
+  const reserved = [{ start: at('2026-11-02T10:00'), end: at('2026-11-02T12:00'), by: '2' }];
+
+  it('subtracts reserved time from free periods', () => {
+    expect(freePeriods(free, reserved)).toEqual([
+      { start: at('2026-11-02T08:00'), end: at('2026-11-02T10:00') },
+      { start: at('2026-11-02T12:00'), end: at('2026-11-02T18:00') },
+    ]);
+    expect(freePeriods(free, [{ start: at('2026-11-02T07:00'), end: at('2026-11-02T19:00') }])).toEqual([]);
+  });
+
+  it('is available only until the reservation starts', () => {
+    expect(spaceState(free, at('2026-11-02T09:00'), reserved)).toEqual({ kind: 'available', until: at('2026-11-02T10:00') });
+  });
+
+  it('is reserved during the reservation, with the apartment', () => {
+    expect(spaceState(free, at('2026-11-02T11:00'), reserved)).toEqual({
+      kind: 'reserved',
+      until: at('2026-11-02T12:00'),
+      by: '2',
+    });
+  });
+
+  it('is free again after the reservation and the overview lists the free parts', () => {
+    expect(spaceState(free, at('2026-11-02T12:30'), reserved).kind).toBe('available');
+    const model = buildOverview(
+      [1],
+      [{ space: 1, start: utc('2026-11-02T08:00'), end: utc('2026-11-02T18:00') }],
+      at('2026-11-02T07:00'),
+      { reservations: [{ space: 1, start: utc('2026-11-02T10:00'), end: utc('2026-11-02T12:00'), apartment: '2' }] },
+    );
+    expect(model.upcoming.map((u) => [u.start, u.end])).toEqual([
+      [at('2026-11-02T08:00'), at('2026-11-02T10:00')],
+      [at('2026-11-02T12:00'), at('2026-11-02T18:00')],
     ]);
   });
 });

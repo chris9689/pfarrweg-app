@@ -1,4 +1,4 @@
-import { Ban, CircleCheck, Clock, Loader2, X } from 'lucide-react';
+import { Ban, BookmarkCheck, CircleCheck, Clock, Loader2, X } from 'lucide-react';
 import {
   createContext,
   useCallback,
@@ -12,13 +12,15 @@ import {
 import { useTranslation } from 'react-i18next';
 import { cx } from '../lib/ui-helpers';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'reserve';
 
 const VARIANTS: Record<Variant, string> = {
   primary: 'bg-primary text-white hover:bg-primary-dark shadow-sm disabled:bg-slate-300 disabled:text-slate-500',
   secondary: 'bg-white text-slate-900 border border-slate-200 hover:bg-slate-50 disabled:text-slate-400',
   ghost: 'bg-transparent text-slate-700 hover:bg-slate-100 disabled:text-slate-400',
   danger: 'bg-rose-600 text-white hover:bg-rose-700 disabled:bg-slate-300',
+  reserve:
+    'bg-white text-orange-700 border-2 border-orange-500 hover:bg-orange-50 disabled:border-slate-300 disabled:text-slate-400',
 };
 
 export function Button({
@@ -85,11 +87,12 @@ export function SectionTitle({ children, aside }: { children: ReactNode; aside?:
   );
 }
 
-export type StatusKind = 'available' | 'upcoming' | 'occupied';
+export type StatusKind = 'available' | 'upcoming' | 'reserved' | 'occupied';
 
 const TILE_STYLES: Record<StatusKind, string> = {
   available: 'bg-emerald-100 text-emerald-800',
   upcoming: 'bg-amber-100 text-amber-900',
+  reserved: 'bg-orange-600 text-white',
   occupied: 'bg-slate-100 text-slate-700',
 };
 
@@ -111,9 +114,10 @@ export function SpaceTile({ number, kind, size = 'md' }: { number: number; kind:
 const PILL_STYLES: Record<StatusKind, string> = {
   available: 'bg-emerald-100 text-emerald-800 ring-emerald-200',
   upcoming: 'bg-amber-100 text-amber-900 ring-amber-200',
+  reserved: 'bg-orange-100 text-orange-800 ring-orange-400',
   occupied: 'bg-rose-50 text-rose-700 ring-rose-200',
 };
-const PILL_ICONS = { available: CircleCheck, upcoming: Clock, occupied: Ban };
+const PILL_ICONS = { available: CircleCheck, upcoming: Clock, reserved: BookmarkCheck, occupied: Ban };
 
 export function StatusPill({ kind, children }: { kind: StatusKind; children: ReactNode }) {
   const Icon = PILL_ICONS[kind];

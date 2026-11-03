@@ -86,6 +86,7 @@ beforeEach(async () => {
   clock = at('2026-11-02T09:00');
   config.adminPasswordHash = adminHash;
   await db.query('delete from availability_schedules');
+  await db.query('delete from reservations');
   await db.query('delete from login_attempts');
 });
 
@@ -328,6 +329,117 @@ describe('creating and updating availability', () => {
       '2026-11-04T07:00:00.000Z',
       '2026-11-09T07:00:00.000Z',
     ]);
+  });
+});
+
+describe('reservations', () => {
+  const window = (date: string, startTime: string, endTime: string, spaceNumber = 1) => ({
+    spaceNumber,
+    startDate: date,
+    startTime,
+    endDate: date,
+    endTime,
+  });
+
+  async function ownerWithAvailability(startTime = '08:00', endTime = '18:00') {
+    const owner = await apartmentClient(0);
+    const created = await owner.call('POST', '/api/schedules', oneOff(spaceId(1), '2026-11-02', startTime, endTime));
+    return { owner, scheduleId: created.json.schedule.id as string };
+  }
+
+  it('lets another apartment reserve part of a free period; overview and /me show it', async () => {
+    const { owner } = await ownerWithAvailability();
+    const guest = await apartmentClient(1);
+    const res = await guest.call('POST', '/api/reservations', window('2026-11-02', '10:00', '12:00'));
+    expect(res.status).toBe(200);
+
+    const overview = (await client().call('GET', '/api/overview')).json as OverviewResponse;
+    expect(overview.reservations).toEqual([
+      { space: 1, start: '2026-11-02T09:00:00.000Z', end: '2026-11-02T11:00:00.000Z', apartment: '2' },
+    ]);
+    expect(((await guest.call('GET', '/api/me')).json as MeResponse).reservations).toMatchObject([{ spaceNumber: 1 }]);
+    expect(((await owner.call('GET', '/api/me')).json as MeResponse).spaceReservations).toMatchObject([
+      { spaceNumber: 1, apartmentName: '2' },
+    ]);
+  });
+
+  it('refuses own spaces, times outside the free period, overlaps and anonymous users', async () => {
+    const { owner } = await ownerWithAvailability();
+    const guest = await apartmentClient(1);
+    const other = await apartmentClient(2);
+
+    expect((await owner.call('POST', '/api/reservations', window('2026-11-02', '10:00', '12:00'))).json.error.code).toBe('own_space');
+    expect((await guest.call('POST', '/api/reservations', window('2026-11-02', '17:00', '19:00'))).json.error.code).toBe('not_available');
+    expect((await guest.call('POST', '/api/reservations', window('2026-11-02', '10:00', '12:00', 2))).json.error.code).toBe('not_available');
+    expect((await client().call('POST', '/api/reservations', window('2026-11-02', '10:00', '12:00'))).status).toBe(401);
+
+    expect((await guest.call('POST', '/api/reservations', window('2026-11-02', '10:00', '12:00'))).status).toBe(200);
+    const clash = await other.call('POST', '/api/reservations', window('2026-11-02', '11:00', '13:00'));
+    expect(clash.status).toBe(409);
+    expect(clash.json.error).toMatchObject({ code: 'already_reserved', details: { spaceNumber: 1 } });
+    expect((await other.call('POST', '/api/reservations', window('2026-11-02', '12:00', '13:00'))).status).toBe(200);
+  });
+
+  it('protects reserved time from the owner (and the admin) but allows other changes', async () => {
+    const { owner, scheduleId } = await ownerWithAvailability();
+    const guest = await apartmentClient(1);
+    await guest.call('POST', '/api/reservations', window('2026-11-02', '10:00', '12:00'));
+
+    const deleted = await owner.call('DELETE', `/api/schedules/${scheduleId}?scope=series`);
+    expect(deleted.status).toBe(409);
+    expect(deleted.json.error.code).toBe('reserved');
+    const shorten = { ...oneOff(spaceId(1), '2026-11-02', '08:00', '11:00'), scope: 'series' };
+    expect((await owner.call('PUT', `/api/schedules/${scheduleId}`, shorten)).json.error.code).toBe('reserved');
+    const shift = { ...oneOff(spaceId(1), '2026-11-02', '09:00', '20:00'), scope: 'series' };
+    expect((await owner.call('PUT', `/api/schedules/${scheduleId}`, shift)).status).toBe(200);
+
+    const admin = client();
+    await admin.call('POST', '/api/admin/login', { password: ADMIN_PASSWORD });
+    expect((await admin.call('DELETE', `/api/admin/schedules/${scheduleId}?scope=series`)).status).toBe(409);
+  });
+
+  it('protects reserved occurrences of recurring availability', async () => {
+    const owner = await apartmentClient(0);
+    const weekly = { ...oneOff(spaceId(1), '2026-11-02', '08:00', '18:00'), repeat: { type: 'weekly', days: [], until: null } };
+    const id = (await owner.call('POST', '/api/schedules', weekly)).json.schedule.id;
+    const guest = await apartmentClient(1);
+    expect((await guest.call('POST', '/api/reservations', window('2026-11-09', '09:00', '10:00'))).status).toBe(200);
+
+    expect((await owner.call('DELETE', `/api/schedules/${id}?scope=occurrence&date=2026-11-09`)).status).toBe(409);
+    expect((await owner.call('DELETE', `/api/schedules/${id}?scope=future&date=2026-11-09`)).status).toBe(409);
+    expect((await owner.call('POST', `/api/schedules/${id}/pause`, {})).status).toBe(409);
+    expect((await owner.call('DELETE', `/api/schedules/${id}?scope=occurrence&date=2026-11-16`)).status).toBe(200);
+    expect((await owner.call('DELETE', `/api/schedules/${id}?scope=future&date=2026-11-16`)).status).toBe(200);
+  });
+
+  it('can be cancelled by the reserving apartment or the admin, not by the owner', async () => {
+    const { owner, scheduleId } = await ownerWithAvailability();
+    const guest = await apartmentClient(1);
+    const id = (await guest.call('POST', '/api/reservations', window('2026-11-02', '10:00', '12:00'))).json.reservation.id;
+
+    expect((await owner.call('DELETE', `/api/reservations/${id}`)).status).toBe(404);
+    expect((await guest.call('DELETE', `/api/reservations/${id}`)).status).toBe(200);
+    expect((await owner.call('DELETE', `/api/schedules/${scheduleId}?scope=series`)).status).toBe(200);
+
+    const again = await ownerWithAvailability();
+    const id2 = (await guest.call('POST', '/api/reservations', window('2026-11-02', '13:00', '14:00'))).json.reservation.id;
+    const admin = client();
+    await admin.call('POST', '/api/admin/login', { password: ADMIN_PASSWORD });
+    const state = (await admin.call('GET', '/api/admin/state')).json;
+    expect(state.reservations).toMatchObject([{ id: id2, apartmentName: '2' }]);
+    expect((await admin.call('DELETE', `/api/admin/reservations/${id2}`)).status).toBe(200);
+    expect((await again.owner.call('DELETE', `/api/schedules/${again.scheduleId}?scope=series`)).status).toBe(200);
+
+    const actions = (await admin.call('GET', '/api/admin/activity')).json.entries.map((e: { action: string }) => e.action);
+    expect(actions).toEqual(expect.arrayContaining(['reservation.created', 'reservation.cancelled']));
+  });
+
+  it('no longer blocks the owner once the reservation is over', async () => {
+    const { owner, scheduleId } = await ownerWithAvailability();
+    const guest = await apartmentClient(1);
+    await guest.call('POST', '/api/reservations', window('2026-11-02', '10:00', '12:00'));
+    clock = at('2026-11-02T12:30');
+    expect((await owner.call('DELETE', `/api/schedules/${scheduleId}?scope=series`)).status).toBe(200);
   });
 });
 

@@ -2,13 +2,15 @@
 
 A small, mobile-first web app (PWA) for one residential building: **4 apartments, 8 parking spaces**.
 Residents mark when their own spaces are free; everybody sees at a glance which spaces are free **now**,
-which become free **soon**, and which are **occupied**. It replaces WhatsApp messages – it is **not** a
-booking system: nobody can reserve or claim a space.
+which become free **soon**, which are **reserved** and which are **occupied**. Other apartments can reserve
+a free space (or part of a free period) with their apartment code.
 
 - Public overview without login (German / English, remembered per device)
 - One access code per apartment → manage only that apartment's two spaces
 - One-off and recurring availability (daily, weekly, selected weekdays, optional end date),
   pause / resume, edit or delete *this date*, *this and following*, or *the whole series*
+- Reservations: tap a free space, enter the apartment code once, reserve (whole or part of the free period).
+  Reserved time cannot be removed by the owner; only the reserving apartment (or the admin) can cancel.
 - Overlaps are refused with a clear explanation
 - Status is computed from the schedule and the current time – no background jobs
 - Separate, protected admin area: apartments, space assignments, access codes, all schedules, activity history
@@ -170,7 +172,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs type checks, Vitest and Playwri
   answer `404`). Admin endpoints require a separate admin session.
 - Login rate limiting per client (10 failures / 15 min; admin 5) and globally (100 / h; admin 30).
 - State-changing requests must be JSON and same-origin (Origin check).
-- The public endpoint returns only space numbers and time ranges.
+- The public endpoint returns space numbers, time ranges and – for reservations – the reserving apartment's name.
 - Database: RLS enabled on all tables with no policies and privileges revoked for `anon`/`authenticated`;
   the connection string lives only in Vercel env vars.
 - Strict security headers and CSP (`vercel.json`). The service worker never caches `/api` responses.
