@@ -54,6 +54,22 @@
     "loadError": "The overview could not be loaded.",
     "adminLink": "Administration"
   },
+  "info": {
+    "title": "Info",
+    "houseRules": "House rules",
+    "thisWeek": "This week",
+    "nextWeek": "Next week: {{name}}",
+    "waste": "Waste collection",
+    "wasteEmpty": "No upcoming collection dates.",
+    "inDays_one": "in {{count}} day",
+    "inDays_other": "in {{count}} days",
+    "bin": {
+      "residual": "Residual waste",
+      "paper": "Paper",
+      "yellow": "Yellow bag / bin",
+      "organic": "Organic waste"
+    }
+  },
   "date": {
     "today": "Today",
     "tomorrow": "Tomorrow",
@@ -111,7 +127,8 @@
     "cancelShort": "Cancel",
     "reservations": "Reserved by others",
     "reservedBy": "{{name}}: {{range}}",
-    "reservedHint": "Reserved times can no longer be removed from your availability."
+    "removeReservation": "Remove reservation",
+    "removeShort": "Remove"
   },
   "recurrence": {
     "daily": "Every day",
@@ -159,7 +176,26 @@
     "deleteSeriesTitle": "Delete entire series?",
     "deleteSeriesText": "All dates of this recurring availability will be removed.",
     "cancelReservationTitle": "Cancel this reservation?",
-    "cancelReservationText": "The space will be shown as free again."
+    "cancelReservationText": "The space will be shown as free again.",
+    "removeReservationTitle": "Remove this reservation?",
+    "removeReservationText": "Apartment {{name}} has reserved this space: {{range}}.",
+    "removeReservationFinal": "This cannot be undone.",
+    "removeReservationNotify": "Apartment {{name}} will be notified in the app that the space is no longer reserved for them.",
+    "removeAvailability": "Also remove this time from my availability",
+    "removeAvailabilityHint": "Otherwise the space is shown as free again and others can reserve it.",
+    "message": "Message to apartment {{name}} (optional)",
+    "keepReservation": "Keep"
+  },
+  "removed": {
+    "title": "Reservation removed",
+    "text": "Apartment {{name}} will see a notice the next time they open the app."
+  },
+  "notices": {
+    "cancelledTitle": "Reservation cancelled",
+    "cancelledByOwner": "Your reservation for space {{number}} ({{range}}) was cancelled by apartment {{name}}.",
+    "cancelledByAdmin": "Your reservation for space {{number}} ({{range}}) was cancelled by the administration.",
+    "message": "Message: “{{message}}”",
+    "dismiss": "Got it"
   },
   "toast": {
     "created": "Saved. Space {{number}} is now marked as available.",
@@ -196,7 +232,8 @@
     "own_space": "This is your own parking space – no reservation needed.",
     "not_available": "Space {{number}} is not free for the whole chosen time.",
     "already_reserved": "Space {{number}} is already reserved ({{range}}). Please choose a different time.",
-    "reserved": "Space {{number}} has been reserved ({{range}}). Reserved times can no longer be removed."
+    "reserved": "Space {{number}} has been reserved ({{range}}). To change this time, remove the reservation first.",
+    "reservation_started": "This reservation has already started and can only be cancelled by the apartment that made it."
   },
   "offline": {
     "banner": "You are offline.",
@@ -239,6 +276,7 @@
     "noSchedules": "No availability planned.",
     "reservations": "Reservations",
     "noReservations": "No reservations.",
+    "cancelReservationText": "The space will be shown as free again. Apartment {{name}} will be notified in the app.",
     "activity": "Activity history",
     "noActivity": "No activity yet.",
     "administrator": "Administrator",
@@ -260,6 +298,7 @@
     "space_unassigned": "Space {{space}} no longer assigned",
     "reservation_created": "Space {{space}} reserved",
     "reservation_cancelled": "Reservation for space {{space}} cancelled",
+    "reservation_removed": "Reservation of {{name}} for space {{space}} removed",
     "unknown": "Other change"
   }
 }

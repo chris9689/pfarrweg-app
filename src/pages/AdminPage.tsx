@@ -438,7 +438,7 @@ function AdminDashboard({
       <ConfirmSheet
         open={dialog?.kind === 'cancelReservation'}
         title={t('confirm.cancelReservationTitle')}
-        text={t('confirm.cancelReservationText')}
+        text={dialog?.kind === 'cancelReservation' ? t('admin.cancelReservationText', { name: dialog.reservation.apartmentName }) : ''}
         confirmLabel={t('manage.cancelReservation')}
         busy={busy}
         onClose={() => setDialog(null)}

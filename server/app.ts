@@ -4,6 +4,7 @@ import type {
   AdminStateResponse,
   AvailabilityBlock,
   MeResponse,
+  NotificationsResponse,
   OverviewResponse,
 } from '../shared/types.js';
 import type { AppConfig } from './config.js';
@@ -197,7 +198,22 @@ export function createApp({ db, config }: { db: Db; config: AppConfig }) {
   };
 
   const cancelReservation: Handler = async (ctx) => {
-    await reservations.cancelReservation(db, await actorFor(ctx), ctx.params[0]);
+    await reservations.cancelReservation(db, config, await actorFor(ctx), ctx.params[0], ctx.body);
+    return { ok: true };
+  };
+
+  const listNotifications: Handler = async (ctx) => {
+    // Polled for every visitor; anonymous ones simply have none.
+    if (!ctx.cookies[APARTMENT_COOKIE]) return { notifications: [] };
+    const { apartmentId } = await apartmentSession(ctx);
+    const body: NotificationsResponse = { notifications: await repo.listUnreadNotifications(db, apartmentId) };
+    return body;
+  };
+
+  const readNotification: Handler = async (ctx) => {
+    const { apartmentId } = await apartmentSession(ctx);
+    if (!isUuid(ctx.params[0])) throw notFound();
+    await repo.markNotificationRead(db, apartmentId, ctx.params[0], now());
     return { ok: true };
   };
 
@@ -371,7 +387,7 @@ export function createApp({ db, config }: { db: Db; config: AppConfig }) {
   };
 
   const adminCancelReservation: Handler = async (ctx) => {
-    await reservations.cancelReservation(db, { kind: 'admin' }, ctx.params[0]);
+    await reservations.cancelReservation(db, config, { kind: 'admin' }, ctx.params[0]);
     return { ok: true };
   };
 
@@ -398,6 +414,9 @@ export function createApp({ db, config }: { db: Db; config: AppConfig }) {
     ['POST', /^\/api\/schedules\/([^/]+)\/(pause|resume)$/, pauseResume],
     ['POST', /^\/api\/reservations$/, createReservation],
     ['DELETE', /^\/api\/reservations\/([^/]+)$/, cancelReservation],
+    ['POST', /^\/api\/reservations\/([^/]+)\/cancel$/, cancelReservation],
+    ['GET', /^\/api\/notifications$/, listNotifications],
+    ['POST', /^\/api\/notifications\/([^/]+)\/read$/, readNotification],
     ['POST', /^\/api\/admin\/login$/, adminLogin],
     ['POST', /^\/api\/admin\/logout$/, adminLogout],
     ['GET', /^\/api\/admin\/state$/, admin(adminState)],

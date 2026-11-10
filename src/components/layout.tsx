@@ -1,13 +1,15 @@
-import { Car, LayoutGrid, WifiOff } from 'lucide-react';
+import { CalendarX2, Car, LayoutGrid, WifiOff } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { NavLink } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { changeLanguage } from '../i18n';
 import { LANGUAGES } from '../i18n/detect';
-import { useOnline } from '../lib/hooks';
-import { useOverview } from '../lib/overview';
+import { useFormatters } from '../lib/format';
+import { useNow, useOnline } from '../lib/hooks';
+import { useNotices } from '../lib/notices';
+import { DEFAULT_TIMEZONE, useOverview } from '../lib/overview';
 import { cx } from '../lib/ui-helpers';
-import { useToast } from './ui';
+import { Button, useToast } from './ui';
 
 export function LanguageSwitcher() {
   const { t, i18n } = useTranslation();
@@ -79,6 +81,39 @@ export function OfflineBanner() {
         <WifiOff className="size-4 shrink-0" aria-hidden />
         {t('offline.banner')} {t('offline.editingDisabled')}
       </div>
+    </div>
+  );
+}
+
+export function Notices() {
+  const { t } = useTranslation();
+  const { notices, dismiss } = useNotices();
+  const { data } = useOverview();
+  const fmt = useFormatters(data?.timezone ?? DEFAULT_TIMEZONE);
+  const now = useNow();
+  if (notices.length === 0) return null;
+  return (
+    <div className="mb-5 flex flex-col gap-3" data-testid="notices">
+      {notices.map((n) => {
+        const vars = { number: n.spaceNumber, range: fmt.range(Date.parse(n.start), Date.parse(n.end), now) };
+        return (
+          <div key={n.id} role="status" className="flex items-start gap-3 rounded-2xl border border-orange-200 bg-orange-50 p-4">
+            <CalendarX2 className="mt-0.5 size-5 shrink-0 text-orange-700" aria-hidden />
+            <div className="min-w-0 flex-1 text-orange-950">
+              <p className="font-bold">{t('notices.cancelledTitle')}</p>
+              <p className="text-sm">
+                {n.cancelledBy
+                  ? t('notices.cancelledByOwner', { ...vars, name: n.cancelledBy })
+                  : t('notices.cancelledByAdmin', vars)}
+              </p>
+              {n.message && <p className="mt-1 break-words text-sm italic">{t('notices.message', { message: n.message })}</p>}
+            </div>
+            <Button variant="secondary" size="sm" className="shrink-0" onClick={() => void dismiss(n.id)}>
+              {t('notices.dismiss')}
+            </Button>
+          </div>
+        );
+      })}
     </div>
   );
 }

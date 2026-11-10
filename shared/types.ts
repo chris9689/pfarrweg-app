@@ -106,6 +106,23 @@ export interface MeResponse {
   spaceReservations: Reservation[];
 }
 
+/** In-app notice for an apartment (currently only: its reservation was cancelled by someone else). */
+export interface AppNotification {
+  id: string;
+  kind: 'reservation_cancelled';
+  createdAt: string;
+  spaceNumber: number;
+  start: string;
+  end: string;
+  /** Name of the owner apartment that removed the reservation; null when the administrator cancelled it. */
+  cancelledBy: string | null;
+  message: string | null;
+}
+
+export interface NotificationsResponse {
+  notifications: AppNotification[];
+}
+
 export interface AdminApartment {
   id: string;
   name: string;

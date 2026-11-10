@@ -213,25 +213,30 @@ export function ConfirmSheet({
   title,
   text,
   confirmLabel,
+  cancelLabel,
   onConfirm,
   onClose,
   busy,
+  children,
 }: {
   open: boolean;
   title: string;
   text: string;
   confirmLabel: string;
+  cancelLabel?: string;
   onConfirm: () => void;
   onClose: () => void;
   busy?: boolean;
+  children?: ReactNode;
 }) {
   const { t } = useTranslation();
   return (
     <Sheet open={open} onClose={onClose} title={title}>
       <p className="mb-5 text-slate-600">{text}</p>
+      {children}
       <div className="grid grid-cols-2 gap-3">
         <Button variant="secondary" onClick={onClose}>
-          {t('common.cancel')}
+          {cancelLabel ?? t('common.cancel')}
         </Button>
         <Button variant="danger" onClick={onConfirm} disabled={busy} busy={busy}>
           {confirmLabel}

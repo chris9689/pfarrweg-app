@@ -162,6 +162,56 @@ test('reservation: another apartment reserves a free space, owner cannot remove 
   await expect(page.getByText('Availability deleted.')).toBeVisible();
 });
 
+test('owner removes a future reservation; the reserving apartment sees a notice', async ({ page }) => {
+  // Owner (apartment 2) makes space 4 available tomorrow 08:00–10:00
+  await login(page, '22222222');
+  const ownerCard = page.getByTestId('my-space-4');
+  const dialog = page.getByRole('dialog');
+  await ownerCard.getByRole('button', { name: 'Make available' }).click();
+  await dialog.getByRole('button', { name: 'Tomorrow' }).click();
+  await dialog.getByLabel('From').selectOption('08:00');
+  await dialog.getByLabel('Until').selectOption('10:00');
+  await dialog.getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByText('Saved. Space 4 is now marked as available.')).toBeVisible();
+  await signOut(page);
+
+  // Apartment 3 reserves the whole period
+  await page.goto('/');
+  await page.getByTestId('bay-4').getByRole('button').click();
+  const reserve = page.getByRole('dialog', { name: 'Reserve space 4' });
+  await reserve.getByLabel('Access code').fill('33333333');
+  await reserve.getByRole('button', { name: 'Continue' }).click();
+  await expect(reserve.getByTestId('reserve-summary')).toBeVisible();
+  await reserve.getByRole('button', { name: 'Reserve' }).click();
+  await expect(page.getByText(/Reserved\. Space 4 is yours/)).toBeVisible();
+  await signOut(page);
+
+  // Owner removes it with a message and also removes the time from the availability
+  await login(page, '22222222');
+  await ownerCard.getByRole('button', { name: /^Remove reservation: 3: / }).click();
+  const confirm = page.getByRole('dialog', { name: 'Remove this reservation?' });
+  await expect(confirm.getByText('This cannot be undone.')).toBeVisible();
+  await expect(confirm.getByRole('checkbox', { name: /Also remove this time/ })).toBeChecked();
+  await confirm.getByLabel('Message to apartment 3 (optional)').fill('Sorry, I need it myself.');
+  await confirm.getByRole('button', { name: 'Remove reservation' }).click();
+  await expect(page.getByRole('dialog', { name: 'Reservation removed' })).toBeVisible();
+  await page.getByRole('dialog').getByRole('button', { name: 'Done' }).click();
+  await expect(ownerCard.getByText('Nothing planned')).toBeVisible();
+  await signOut(page);
+
+  // Apartment 3 sees the notice once
+  await login(page, '33333333');
+  const notices = page.getByTestId('notices');
+  await expect(notices).toContainText('was cancelled by apartment 2');
+  await expect(notices).toContainText('Sorry, I need it myself.');
+  await notices.getByRole('button', { name: 'Got it' }).click();
+  await expect(notices).toHaveCount(0);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'My parking spaces', level: 1 })).toBeVisible();
+  await expect(page.getByTestId('notices')).toHaveCount(0);
+  await signOut(page);
+});
+
 test('the complete workflow works in German', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('button', { name: 'Deutsch' }).click();

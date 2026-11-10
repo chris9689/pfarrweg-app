@@ -93,6 +93,7 @@ describe('translation resources', () => {
         'not_available',
         'already_reserved',
         'reserved',
+        'reservation_started',
         'network',
         'generic',
       ].map((c) => `errors.${c}`),
@@ -112,6 +113,7 @@ describe('translation resources', () => {
         'space.unassigned',
         'reservation.created',
         'reservation.cancelled',
+        'reservation.removed',
       ].map((a) => `activity.${a.replace('.', '_')}`),
     ];
     for (const key of dynamic) {

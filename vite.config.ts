@@ -50,7 +50,7 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+          globPatterns: ['**/*.{js,css,html,svg,png,woff2,ics}'],
           // The branding sheet is only the source for `npm run icons`.
           globIgnores: ['**/Pfarrweg Parking App Branding.png'],
           navigateFallback: '/index.html',

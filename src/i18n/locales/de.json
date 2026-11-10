@@ -54,6 +54,22 @@
     "loadError": "Die Übersicht konnte nicht geladen werden.",
     "adminLink": "Verwaltung"
   },
+  "info": {
+    "title": "Info",
+    "houseRules": "Hausordnung",
+    "thisWeek": "Diese Woche",
+    "nextWeek": "Nächste Woche: {{name}}",
+    "waste": "Müllabfuhr",
+    "wasteEmpty": "Keine anstehenden Abfuhrtermine.",
+    "inDays_one": "in {{count}} Tag",
+    "inDays_other": "in {{count}} Tagen",
+    "bin": {
+      "residual": "Restmüll",
+      "paper": "Papier",
+      "yellow": "Gelber Sack / Gelbe Tonne",
+      "organic": "Biotonne"
+    }
+  },
   "date": {
     "today": "Heute",
     "tomorrow": "Morgen",
@@ -111,7 +127,8 @@
     "cancelShort": "Stornieren",
     "reservations": "Von anderen reserviert",
     "reservedBy": "{{name}}: {{range}}",
-    "reservedHint": "Reservierte Zeiten können nicht mehr aus Ihrer Freigabe entfernt werden."
+    "removeReservation": "Reservierung entfernen",
+    "removeShort": "Entfernen"
   },
   "recurrence": {
     "daily": "Täglich",
@@ -159,7 +176,26 @@
     "deleteSeriesTitle": "Gesamte Serie löschen?",
     "deleteSeriesText": "Alle Termine dieser wiederkehrenden Freigabe werden entfernt.",
     "cancelReservationTitle": "Reservierung stornieren?",
-    "cancelReservationText": "Der Parkplatz wird wieder als frei angezeigt."
+    "cancelReservationText": "Der Parkplatz wird wieder als frei angezeigt.",
+    "removeReservationTitle": "Diese Reservierung entfernen?",
+    "removeReservationText": "Wohnung {{name}} hat diesen Parkplatz reserviert: {{range}}.",
+    "removeReservationFinal": "Dies kann nicht rückgängig gemacht werden.",
+    "removeReservationNotify": "Wohnung {{name}} wird in der App benachrichtigt, dass der Parkplatz nicht mehr für sie reserviert ist.",
+    "removeAvailability": "Diese Zeit auch aus meiner Freigabe entfernen",
+    "removeAvailabilityHint": "Sonst wird der Parkplatz wieder als frei angezeigt und kann von anderen reserviert werden.",
+    "message": "Nachricht an Wohnung {{name}} (optional)",
+    "keepReservation": "Behalten"
+  },
+  "removed": {
+    "title": "Reservierung entfernt",
+    "text": "Wohnung {{name}} sieht beim nächsten Öffnen der App einen Hinweis."
+  },
+  "notices": {
+    "cancelledTitle": "Reservierung storniert",
+    "cancelledByOwner": "Ihre Reservierung für Parkplatz {{number}} ({{range}}) wurde von Wohnung {{name}} storniert.",
+    "cancelledByAdmin": "Ihre Reservierung für Parkplatz {{number}} ({{range}}) wurde von der Verwaltung storniert.",
+    "message": "Nachricht: „{{message}}“",
+    "dismiss": "Verstanden"
   },
   "toast": {
     "created": "Gespeichert. Parkplatz {{number}} ist jetzt freigegeben.",
@@ -196,7 +232,8 @@
     "own_space": "Das ist Ihr eigener Parkplatz – keine Reservierung nötig.",
     "not_available": "Parkplatz {{number}} ist nicht im gesamten gewählten Zeitraum frei.",
     "already_reserved": "Parkplatz {{number}} ist bereits reserviert ({{range}}). Bitte wählen Sie eine andere Zeit.",
-    "reserved": "Parkplatz {{number}} wurde reserviert ({{range}}). Reservierte Zeiten können nicht mehr entfernt werden."
+    "reserved": "Parkplatz {{number}} wurde reserviert ({{range}}). Um diese Zeit zu ändern, entfernen Sie bitte zuerst die Reservierung.",
+    "reservation_started": "Diese Reservierung hat bereits begonnen und kann nur noch von der reservierenden Wohnung storniert werden."
   },
   "offline": {
     "banner": "Sie sind offline.",
@@ -239,6 +276,7 @@
     "noSchedules": "Keine Freigaben geplant.",
     "reservations": "Reservierungen",
     "noReservations": "Keine Reservierungen.",
+    "cancelReservationText": "Der Parkplatz wird wieder als frei angezeigt. Wohnung {{name}} wird in der App benachrichtigt.",
     "activity": "Aktivitätsverlauf",
     "noActivity": "Noch keine Aktivitäten.",
     "administrator": "Verwaltung",
@@ -260,6 +298,7 @@
     "space_unassigned": "Parkplatz {{space}} keiner Wohnung mehr zugeordnet",
     "reservation_created": "Parkplatz {{space}} reserviert",
     "reservation_cancelled": "Reservierung für Parkplatz {{space}} storniert",
+    "reservation_removed": "Reservierung von {{name}} für Parkplatz {{space}} entfernt",
     "unknown": "Sonstige Änderung"
   }
 }

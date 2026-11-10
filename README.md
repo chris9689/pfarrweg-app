@@ -10,7 +10,9 @@ a free space (or part of a free period) with their apartment code.
 - One-off and recurring availability (daily, weekly, selected weekdays, optional end date),
   pause / resume, edit or delete *this date*, *this and following*, or *the whole series*
 - Reservations: tap a free space, enter the apartment code once, reserve (whole or part of the free period).
-  Reserved time cannot be removed by the owner; only the reserving apartment (or the admin) can cancel.
+  Reserved time cannot be deleted from the availability. The reserving apartment (or the admin) can cancel;
+  the space owner can remove a reservation before it starts (optional message, optionally also removing the
+  time from the availability). The reserving apartment then sees an in-app notice.
 - Overlaps are refused with a clear explanation
 - Status is computed from the schedule and the current time – no background jobs
 - Separate, protected admin area: apartments, space assignments, access codes, all schedules, activity history
@@ -122,6 +124,8 @@ machine with Node.js and set the output as `ADMIN_PASSWORD_HASH` (the hash takes
 | See what happened | Admin → *Activity history* (last 200 changes) |
 | Change the admin password | Update `ADMIN_PASSWORD` / `ADMIN_PASSWORD_HASH` in Vercel and redeploy |
 | Add parking spaces beyond 8 | Insert a row in Supabase: `insert into parking_spaces (space_number) values (9);` then assign it in the admin area |
+| Update waste collection dates | Replace `public/abfuhrtermine.ics` with a new calendar export (keep the file name), commit and redeploy |
+| Change the house-rules rotation | Edit `HOUSE_RULES_ROTATION` / `HOUSE_RULES_ANCHOR` in `src/lib/info.ts` |
 
 Admin sessions last 8 hours; resident sessions 180 days (until sign-out or a code reset).
 

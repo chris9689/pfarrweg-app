@@ -11,6 +11,7 @@ import { api, ApiError } from '../lib/api';
 import { errorMessage } from '../lib/errors';
 import { useFormatters, type Formatters } from '../lib/format';
 import { useNow, useOnline } from '../lib/hooks';
+import { useNotices } from '../lib/notices';
 import { useOverview } from '../lib/overview';
 import { defaultFormValues, valuesFromOccurrence, valuesFromSchedule } from '../lib/schedule-form';
 import { stateLabel } from '../lib/ui-helpers';
@@ -19,6 +20,7 @@ type MeState = { status: 'loading' } | { status: 'anon' } | { status: 'error' } 
 
 export default function MyPage() {
   const [state, setState] = useState<MeState>({ status: 'loading' });
+  const { refresh: refreshNotices } = useNotices();
 
   const load = useCallback(async () => {
     try {
@@ -33,9 +35,27 @@ export default function MyPage() {
   }, [load]);
 
   if (state.status === 'loading') return <Spinner />;
-  if (state.status === 'anon') return <LoginForm onSuccess={load} />;
+  if (state.status === 'anon') {
+    return (
+      <LoginForm
+        onSuccess={async () => {
+          await load();
+          await refreshNotices();
+        }}
+      />
+    );
+  }
   if (state.status === 'error') return <LoadError onRetry={load} />;
-  return <ManageSpaces data={state.data} reload={load} onSignedOut={() => setState({ status: 'anon' })} />;
+  return (
+    <ManageSpaces
+      data={state.data}
+      reload={load}
+      onSignedOut={() => {
+        setState({ status: 'anon' });
+        void refreshNotices();
+      }}
+    />
+  );
 }
 
 function LoadError({ onRetry }: { onRetry: () => void }) {
@@ -74,7 +94,14 @@ type Pending =
   | { kind: 'scope'; action: 'edit' | 'delete'; schedule: Schedule; occurrence: Occurrence }
   | { kind: 'confirmDelete'; schedule: Schedule; series: boolean }
   | { kind: 'cancelReservation'; reservation: Reservation }
+  | { kind: 'removeReservation'; reservation: Reservation }
+  | { kind: 'reservationRemoved'; reservation: Reservation }
   | null;
+
+interface RemoveOptions {
+  message: string;
+  removeAvailability: boolean;
+}
 
 function ManageSpaces({ data, reload, onSignedOut }: { data: MeResponse; reload: () => Promise<void>; onSignedOut: () => void }) {
   const { t } = useTranslation();
@@ -91,12 +118,12 @@ function ManageSpaces({ data, reload, onSignedOut }: { data: MeResponse; reload:
     await Promise.all([reload(), overview.refresh()]);
   };
 
-  const run = async (request: () => Promise<unknown>, success: string) => {
+  const run = async (request: () => Promise<unknown>, success: string | null, next: Pending = null) => {
     setBusy(true);
     try {
       await request();
-      toast(success);
-      setPending(null);
+      if (success) toast(success);
+      setPending(next);
       await refreshAll();
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) return onSignedOut();
@@ -210,6 +237,7 @@ function ManageSpaces({ data, reload, onSignedOut }: { data: MeResponse; reload:
           onCreate={() => openForm({ kind: 'create', values: defaultFormValues(space.id, Date.now(), data.timezone) })}
           onEdit={editFlow}
           onDelete={deleteFlow}
+          onRemoveReservation={(reservation) => setPending({ kind: 'removeReservation', reservation })}
           onToggleActive={(s) =>
             run(
               () => api('POST', `/api/schedules/${s.id}/${s.isActive ? 'pause' : 'resume'}`, {}),
@@ -282,6 +310,32 @@ function ManageSpaces({ data, reload, onSignedOut }: { data: MeResponse; reload:
         }
       />
 
+      <RemoveReservationSheet
+        key={pending?.kind === 'removeReservation' ? pending.reservation.id : 'closed'}
+        reservation={pending?.kind === 'removeReservation' ? pending.reservation : null}
+        fmt={fmt}
+        now={now}
+        busy={busy}
+        onClose={() => setPending(null)}
+        onConfirm={(reservation, options) =>
+          run(() => api('POST', `/api/reservations/${reservation.id}/cancel`, options), null, {
+            kind: 'reservationRemoved',
+            reservation,
+          })
+        }
+      />
+
+      <Sheet open={pending?.kind === 'reservationRemoved'} onClose={() => setPending(null)} title={t('removed.title')}>
+        {pending?.kind === 'reservationRemoved' && (
+          <>
+            <p className="mb-5 text-slate-600">{t('removed.text', { name: pending.reservation.apartmentName })}</p>
+            <Button className="w-full" onClick={() => setPending(null)}>
+              {t('common.done')}
+            </Button>
+          </>
+        )}
+      </Sheet>
+
       <ConfirmSheet
         open={pending?.kind === 'confirmDelete'}
         title={pending?.kind === 'confirmDelete' && pending.series ? t('confirm.deleteSeriesTitle') : t('confirm.deleteTitle')}
@@ -308,6 +362,7 @@ function SpaceCard({
   onEdit,
   onDelete,
   onToggleActive,
+  onRemoveReservation,
 }: {
   space: SpaceInfo;
   data: MeResponse;
@@ -318,6 +373,7 @@ function SpaceCard({
   onEdit: (s: Schedule, o?: Occurrence) => void;
   onDelete: (s: Schedule, o?: Occurrence) => void;
   onToggleActive: (s: Schedule) => void;
+  onRemoveReservation: (r: Reservation) => void;
 }) {
   const { t } = useTranslation();
   const schedules = data.schedules.filter((s) => s.parkingSpaceId === space.id);
@@ -351,17 +407,32 @@ function SpaceCard({
         <div className="border-t border-slate-100 px-4 py-3">
           <h3 className="mb-1 text-sm font-semibold text-slate-500">{t('manage.reservations')}</h3>
           <ul className="flex flex-col gap-1">
-            {reserved.map((r) => (
-              <li key={r.id} className="flex items-start gap-2 text-sm text-orange-900">
-                <BookmarkCheck className="mt-0.5 size-4 shrink-0 text-orange-700" aria-hidden />
-                {t('manage.reservedBy', {
-                  name: r.apartmentName,
-                  range: fmt.range(Date.parse(r.start), Date.parse(r.end), now),
-                })}
-              </li>
-            ))}
+            {reserved.map((r) => {
+              const label = t('manage.reservedBy', {
+                name: r.apartmentName,
+                range: fmt.range(Date.parse(r.start), Date.parse(r.end), now),
+              });
+              return (
+                <li key={r.id} className="flex items-center gap-2 text-sm text-orange-900">
+                  <BookmarkCheck className="size-4 shrink-0 text-orange-700" aria-hidden />
+                  <span className="min-w-0 flex-1">{label}</span>
+                  {/* Running reservations can only be cancelled by the reserving apartment. */}
+                  {Date.parse(r.start) > now && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="shrink-0"
+                      aria-label={`${t('manage.removeReservation')}: ${label}`}
+                      disabled={disabled}
+                      onClick={() => onRemoveReservation(r)}
+                    >
+                      {t('manage.removeShort')}
+                    </Button>
+                  )}
+                </li>
+              );
+            })}
           </ul>
-          <p className="mt-1 text-xs text-slate-500">{t('manage.reservedHint')}</p>
         </div>
       )}
 
@@ -402,6 +473,69 @@ function SpaceCard({
       </div>
     </Card>
     </section>
+  );
+}
+
+function RemoveReservationSheet({
+  reservation,
+  fmt,
+  now,
+  busy,
+  onClose,
+  onConfirm,
+}: {
+  reservation: Reservation | null;
+  fmt: Formatters;
+  now: number;
+  busy: boolean;
+  onClose: () => void;
+  onConfirm: (reservation: Reservation, options: RemoveOptions) => void;
+}) {
+  const { t } = useTranslation();
+  const [removeAvailability, setRemoveAvailability] = useState(true);
+  const [message, setMessage] = useState('');
+  const name = reservation?.apartmentName ?? '';
+  const range = reservation ? fmt.range(Date.parse(reservation.start), Date.parse(reservation.end), now) : '';
+
+  return (
+    <ConfirmSheet
+      open={reservation !== null}
+      title={t('confirm.removeReservationTitle')}
+      text={t('confirm.removeReservationText', { name, range })}
+      confirmLabel={t('manage.removeReservation')}
+      cancelLabel={t('confirm.keepReservation')}
+      busy={busy}
+      onClose={onClose}
+      onConfirm={() => reservation && onConfirm(reservation, { message: message.trim(), removeAvailability })}
+    >
+      <ul className="-mt-2 mb-4 list-disc pl-5 text-sm text-slate-600">
+        <li>{t('confirm.removeReservationFinal')}</li>
+        <li>{t('confirm.removeReservationNotify', { name })}</li>
+      </ul>
+      <label className="mb-4 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 p-3">
+        <input
+          type="checkbox"
+          checked={removeAvailability}
+          onChange={(e) => setRemoveAvailability(e.target.checked)}
+          className="mt-0.5 size-5 shrink-0 accent-primary"
+        />
+        <span className="text-sm">
+          <span className="block font-semibold text-slate-800">{t('confirm.removeAvailability')}</span>
+          <span className="block text-slate-500">{t('confirm.removeAvailabilityHint')}</span>
+        </span>
+      </label>
+      <label htmlFor="remove-message" className="mb-1.5 block text-sm font-semibold text-slate-800">
+        {t('confirm.message', { name })}
+      </label>
+      <textarea
+        id="remove-message"
+        rows={2}
+        maxLength={200}
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        className="mb-5 block w-full resize-none rounded-xl border border-slate-300 bg-white p-3 text-base text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+      />
+    </ConfirmSheet>
   );
 }
 

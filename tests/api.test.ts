@@ -5,7 +5,7 @@ import type { Db } from '../server/db';
 import { createPgliteDb } from '../server/db-pglite';
 import * as repo from '../server/repo';
 import { hashSecret } from '../server/security';
-import type { MeResponse, OverviewResponse } from '../shared/types';
+import type { MeResponse, NotificationsResponse, OverviewResponse } from '../shared/types';
 import { at, TZ } from './helpers';
 
 const CODES = ['11111111', '22222222', '33333333', '44444444'];
@@ -87,6 +87,7 @@ beforeEach(async () => {
   config.adminPasswordHash = adminHash;
   await db.query('delete from availability_schedules');
   await db.query('delete from reservations');
+  await db.query('delete from notifications');
   await db.query('delete from login_attempts');
 });
 
@@ -412,14 +413,17 @@ describe('reservations', () => {
     expect((await owner.call('DELETE', `/api/schedules/${id}?scope=future&date=2026-11-16`)).status).toBe(200);
   });
 
-  it('can be cancelled by the reserving apartment or the admin, not by the owner', async () => {
+  it('can be cancelled by the reserving apartment or the admin, not by unrelated apartments', async () => {
     const { owner, scheduleId } = await ownerWithAvailability();
     const guest = await apartmentClient(1);
+    const other = await apartmentClient(2);
     const id = (await guest.call('POST', '/api/reservations', window('2026-11-02', '10:00', '12:00'))).json.reservation.id;
 
-    expect((await owner.call('DELETE', `/api/reservations/${id}`)).status).toBe(404);
+    expect((await other.call('DELETE', `/api/reservations/${id}`)).status).toBe(404);
+    expect((await other.call('POST', `/api/reservations/${id}/cancel`, {})).status).toBe(404);
     expect((await guest.call('DELETE', `/api/reservations/${id}`)).status).toBe(200);
     expect((await owner.call('DELETE', `/api/schedules/${scheduleId}?scope=series`)).status).toBe(200);
+    expect(((await guest.call('GET', '/api/notifications')).json as NotificationsResponse).notifications).toEqual([]);
 
     const again = await ownerWithAvailability();
     const id2 = (await guest.call('POST', '/api/reservations', window('2026-11-02', '13:00', '14:00'))).json.reservation.id;
@@ -429,9 +433,112 @@ describe('reservations', () => {
     expect(state.reservations).toMatchObject([{ id: id2, apartmentName: '2' }]);
     expect((await admin.call('DELETE', `/api/admin/reservations/${id2}`)).status).toBe(200);
     expect((await again.owner.call('DELETE', `/api/schedules/${again.scheduleId}?scope=series`)).status).toBe(200);
+    expect(((await guest.call('GET', '/api/notifications')).json as NotificationsResponse).notifications).toMatchObject([
+      { kind: 'reservation_cancelled', spaceNumber: 1, cancelledBy: null, message: null },
+    ]);
 
     const actions = (await admin.call('GET', '/api/admin/activity')).json.entries.map((e: { action: string }) => e.action);
     expect(actions).toEqual(expect.arrayContaining(['reservation.created', 'reservation.cancelled']));
+  });
+
+  it('can be removed by the space owner: the reserving apartment is notified, the time optionally cut', async () => {
+    const { owner } = await ownerWithAvailability();
+    const guest = await apartmentClient(1);
+    const id = (await guest.call('POST', '/api/reservations', window('2026-11-02', '10:00', '12:00'))).json.reservation.id;
+
+    const body = { message: '  Need it myself, sorry!  ', removeAvailability: true };
+    expect((await owner.call('POST', `/api/reservations/${id}/cancel`, body)).status).toBe(200);
+    expect((await owner.call('POST', `/api/reservations/${id}/cancel`, body)).status).toBe(404);
+
+    const overview = (await client().call('GET', '/api/overview')).json as OverviewResponse;
+    expect(overview.reservations).toEqual([]);
+    expect(overview.blocks).toEqual([
+      { space: 1, start: '2026-11-02T07:00:00.000Z', end: '2026-11-02T09:00:00.000Z' },
+      { space: 1, start: '2026-11-02T11:00:00.000Z', end: '2026-11-02T17:00:00.000Z' },
+    ]);
+
+    const notices = ((await guest.call('GET', '/api/notifications')).json as NotificationsResponse).notifications;
+    expect(notices).toMatchObject([
+      {
+        kind: 'reservation_cancelled',
+        spaceNumber: 1,
+        start: '2026-11-02T09:00:00.000Z',
+        end: '2026-11-02T11:00:00.000Z',
+        cancelledBy: '1',
+        message: 'Need it myself, sorry!',
+      },
+    ]);
+    expect(((await owner.call('GET', '/api/notifications')).json as NotificationsResponse).notifications).toEqual([]);
+    expect((await client().call('GET', '/api/notifications')).json).toEqual({ notifications: [] });
+
+    // Only the addressed apartment can mark the notice as read.
+    await owner.call('POST', `/api/notifications/${notices[0].id}/read`, {});
+    expect(((await guest.call('GET', '/api/notifications')).json as NotificationsResponse).notifications).toHaveLength(1);
+    expect((await client().call('POST', `/api/notifications/${notices[0].id}/read`, {})).status).toBe(401);
+    expect((await guest.call('POST', `/api/notifications/${notices[0].id}/read`, {})).status).toBe(200);
+    expect(((await guest.call('GET', '/api/notifications')).json as NotificationsResponse).notifications).toEqual([]);
+
+    const admin = client();
+    await admin.call('POST', '/api/admin/login', { password: ADMIN_PASSWORD });
+    expect((await admin.call('GET', '/api/admin/activity')).json.entries[0]).toMatchObject({
+      action: 'reservation.removed',
+      apartmentName: '1',
+      details: { name: '2', availabilityRemoved: true },
+    });
+  });
+
+  it('keeps the availability by default and validates the message', async () => {
+    const { owner } = await ownerWithAvailability();
+    const guest = await apartmentClient(1);
+    const id = (await guest.call('POST', '/api/reservations', window('2026-11-02', '10:00', '12:00'))).json.reservation.id;
+
+    expect((await owner.call('POST', `/api/reservations/${id}/cancel`, { message: 'x'.repeat(201) })).status).toBe(400);
+    expect((await owner.call('POST', `/api/reservations/${id}/cancel`, { message: 42 })).status).toBe(400);
+    expect((await owner.call('POST', `/api/reservations/${id}/cancel`, { message: '   ' })).status).toBe(200);
+
+    const overview = (await client().call('GET', '/api/overview')).json as OverviewResponse;
+    expect(overview.blocks).toEqual([{ space: 1, start: '2026-11-02T07:00:00.000Z', end: '2026-11-02T17:00:00.000Z' }]);
+    expect(((await guest.call('GET', '/api/notifications')).json as NotificationsResponse).notifications).toMatchObject([
+      { cancelledBy: '1', message: null },
+    ]);
+  });
+
+  it('cannot be removed by the owner once it has started', async () => {
+    const { owner } = await ownerWithAvailability();
+    const guest = await apartmentClient(1);
+    const id = (await guest.call('POST', '/api/reservations', window('2026-11-02', '10:00', '12:00'))).json.reservation.id;
+    clock = at('2026-11-02T10:30');
+    const res = await owner.call('POST', `/api/reservations/${id}/cancel`, { removeAvailability: true });
+    expect(res.status).toBe(409);
+    expect(res.json.error.code).toBe('reservation_started');
+    expect((await guest.call('DELETE', `/api/reservations/${id}`)).status).toBe(200);
+  });
+
+  it('cuts removed reservations out of recurring availability', async () => {
+    const owner = await apartmentClient(0);
+    const weekly = { ...oneOff(spaceId(1), '2026-11-02', '08:00', '18:00'), repeat: { type: 'weekly', days: [], until: null } };
+    const scheduleId = (await owner.call('POST', '/api/schedules', weekly)).json.schedule.id;
+    const guest = await apartmentClient(1);
+    const partial = (await guest.call('POST', '/api/reservations', window('2026-11-09', '10:00', '12:00'))).json.reservation.id;
+    const whole = (await guest.call('POST', '/api/reservations', window('2026-11-16', '08:00', '18:00'))).json.reservation.id;
+
+    expect((await owner.call('POST', `/api/reservations/${partial}/cancel`, { removeAvailability: true })).status).toBe(200);
+    expect((await owner.call('POST', `/api/reservations/${whole}/cancel`, { removeAvailability: true })).status).toBe(200);
+
+    const me = (await owner.call('GET', '/api/me')).json as MeResponse;
+    expect(me.exceptions).toMatchObject([
+      {
+        scheduleId,
+        occurrenceDate: '2026-11-09',
+        type: 'modified',
+        modifiedStart: '2026-11-09T07:00:00.000Z',
+        modifiedEnd: '2026-11-09T09:00:00.000Z',
+      },
+      { scheduleId, occurrenceDate: '2026-11-16', type: 'cancelled' },
+    ]);
+    expect(me.schedules.filter((s) => s.id !== scheduleId)).toMatchObject([
+      { recurrenceType: 'none', start: '2026-11-09T11:00:00.000Z', end: '2026-11-09T17:00:00.000Z' },
+    ]);
   });
 
   it('no longer blocks the owner once the reservation is over', async () => {

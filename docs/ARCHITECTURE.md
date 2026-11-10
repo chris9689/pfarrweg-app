@@ -39,6 +39,7 @@ flowchart LR
 | `availability_schedules` | one row per one-off period **or** recurring series: first occurrence `start_datetime`/`end_datetime` (UTC), `recurrence_type` (`none`/`daily`/`weekly`/`weekdays`), `recurrence_days` (ISO 1–7), `recurrence_end_date` (local date, inclusive), `timezone`, `is_active` |
 | `availability_exceptions` | per-occurrence overrides keyed by `(schedule_id, occurrence_date)`: `cancelled` or `modified` (new start/end) |
 | `reservations` | concrete period (UTC start/end) on a space, reserved by an apartment; deleted when cancelled |
+| `notifications` | in-app notices for an apartment (`kind`, JSON details, `read_at`); purged after 30 days |
 | `sessions` | SHA-256 of session tokens, kind (`apartment`/`admin`), expiry |
 | `login_attempts` | hashed client key + result, for rate limiting |
 | `activity_log` | who did what (actor, action, space, apartment, JSON details) |
@@ -108,7 +109,15 @@ Weekly patterns repeat, so checking one year (371 days) beyond the latest start 
   reservation is running, otherwise available/upcoming based on the remaining free periods.
 - Owner protection: every availability change (edit, delete, pause – also by the admin) is re-validated; if
   any future reservation would no longer be covered, the change is refused (`409 reserved`).
-- Only the reserving apartment or the administrator can cancel a reservation.
+- Cancelling: the reserving apartment and the administrator can always cancel. The space owner can remove a
+  reservation only before it starts (`POST /api/reservations/:id/cancel` with optional `message` ≤ 200 chars and
+  `removeAvailability`). With `removeAvailability` the reserved period is cut out of the availability under the
+  space lock: one-off periods are shortened/split/deleted, recurring dates get a `modified`/`cancelled` exception
+  (plus a one-off for a remainder after the gap).
+- Notices: when the owner or the administrator cancels, a `notifications` row is written for the reserving
+  apartment in the same transaction. `GET /api/notifications` returns unread notices (empty for anonymous
+  visitors) and is re-checked whenever the overview refreshes; `POST /api/notifications/:id/read` dismisses one.
+  No push or e-mail – the notice appears the next time the app is opened.
 - `GET /api/overview` adds `reservations: { space, start, end, apartment }[]`; `/api/me` adds the apartment's
   own reservations and reservations on its spaces. The change was purely additive (new table, new fields).
 

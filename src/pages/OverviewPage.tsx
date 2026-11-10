@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { DAY_MS } from '../../shared/recurrence';
 import { buildOverview } from '../../shared/status';
+import { InfoSection } from '../components/InfoSection';
 import { InstallHint } from '../components/pwa';
 import { ParkingLot } from '../components/ParkingLot';
 import { ReserveFlow, type ReserveTarget } from '../components/ReserveFlow';
@@ -185,6 +186,8 @@ export default function OverviewPage() {
           })}
         </ul>
       </section>
+
+      <InfoSection timezone={data.timezone} now={now} />
 
       <Sheet
         open={reserve !== null}

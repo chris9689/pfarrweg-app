@@ -1,4 +1,4 @@
-import type { ActivityEntry, Reservation, Schedule, ScheduleException } from '../shared/types.js';
+import type { ActivityEntry, AppNotification, Reservation, Schedule, ScheduleException } from '../shared/types.js';
 import type { Db } from './db.js';
 
 const iso = (v: unknown) => (v instanceof Date ? v : new Date(String(v))).toISOString();
@@ -261,6 +261,7 @@ export async function countFailedAttempts(db: Db, kind: SessionRow['kind'], sinc
 export async function purgeStaleAuthData(db: Db, now: Date): Promise<void> {
   await db.query('delete from sessions where expires_at < $1', [now]);
   await db.query("delete from login_attempts where attempted_at < $1::timestamptz - interval '2 days'", [now]);
+  await db.query("delete from notifications where created_at < $1::timestamptz - interval '30 days'", [now]);
 }
 
 // ---------- reservations ----------
@@ -321,8 +322,53 @@ export async function insertReservation(
   return row.id;
 }
 
-export async function deleteReservation(db: Db, id: string): Promise<void> {
-  await db.query('delete from reservations where id = $1', [id]);
+/** Returns false if the reservation no longer existed. */
+export async function deleteReservation(db: Db, id: string): Promise<boolean> {
+  const rows = await db.query('delete from reservations where id = $1 returning id', [id]);
+  return rows.length > 0;
+}
+
+// ---------- notifications ----------
+
+export async function insertNotification(
+  db: Db,
+  apartmentId: string,
+  kind: AppNotification['kind'],
+  details: Record<string, unknown>,
+): Promise<void> {
+  await db.query('insert into notifications (apartment_id, kind, details) values ($1, $2, $3::jsonb)', [
+    apartmentId,
+    kind,
+    JSON.stringify(details),
+  ]);
+}
+
+export async function listUnreadNotifications(db: Db, apartmentId: string): Promise<AppNotification[]> {
+  const rows = await db.query(
+    'select id, kind, details, created_at from notifications where apartment_id = $1 and read_at is null order by created_at',
+    [apartmentId],
+  );
+  return rows.map((r) => {
+    const d = (typeof r.details === 'string' ? JSON.parse(r.details) : r.details) as Record<string, unknown>;
+    return {
+      id: r.id as string,
+      kind: r.kind as AppNotification['kind'],
+      createdAt: iso(r.created_at),
+      spaceNumber: Number(d.spaceNumber),
+      start: String(d.start),
+      end: String(d.end),
+      cancelledBy: (d.cancelledBy as string | null) ?? null,
+      message: (d.message as string | null) ?? null,
+    };
+  });
+}
+
+export async function markNotificationRead(db: Db, apartmentId: string, id: string, at: Date): Promise<void> {
+  await db.query('update notifications set read_at = $3 where id = $1 and apartment_id = $2 and read_at is null', [
+    id,
+    apartmentId,
+    at,
+  ]);
 }
 
 // ---------- activity log ----------

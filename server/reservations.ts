@@ -76,18 +76,112 @@ export async function createReservation(db: Db, config: AppConfig, apartmentId: 
   });
 }
 
-/** Only the reserving apartment (or the administrator) can cancel – not the space owner. */
-export async function cancelReservation(db: Db, actor: Actor, id: unknown) {
+const MAX_MESSAGE_LENGTH = 200;
+
+function parseMessage(value: unknown): string | null {
+  if (value === undefined || value === null) return null;
+  if (typeof value !== 'string' || value.trim().length > MAX_MESSAGE_LENGTH) throw badRequest();
+  return value.trim() || null;
+}
+
+const oneOffFields = (timezone: string, start: number, end: number): repo.ScheduleFields => ({
+  start: new Date(start).toISOString(),
+  end: new Date(end).toISOString(),
+  recurrenceType: 'none',
+  recurrenceDays: [],
+  recurrenceEndDate: null,
+  timezone,
+  isActive: true,
+});
+
+/**
+ * Cuts [start, end) out of a space's availability: one-off periods are shortened, split or deleted;
+ * recurring dates get a `modified`/`cancelled` exception (plus a one-off for a remainder after the gap).
+ */
+async function removeAvailability(tx: Db, spaceId: string, start: number, end: number) {
+  const schedules = await repo.listSchedules(tx, [spaceId]);
+  const exceptions = await repo.listExceptions(
+    tx,
+    schedules.map((s) => s.id),
+  );
+  for (const o of expandAll(schedules, exceptions, start, end)) {
+    const s = schedules.find((x) => x.id === o.scheduleId)!;
+    const [keep, rest] = [
+      { start: o.start, end: start },
+      { start: end, end: o.end },
+    ].filter((p) => p.end > p.start);
+    if (s.recurrenceType === 'none') {
+      if (keep) await repo.updateSchedule(tx, s.id, oneOffFields(s.timezone, keep.start, keep.end));
+      else await repo.deleteSchedule(tx, s.id);
+    } else {
+      await repo.upsertException(tx, {
+        scheduleId: s.id,
+        occurrenceDate: o.occurrenceDate,
+        type: keep ? 'modified' : 'cancelled',
+        modifiedStart: keep ? new Date(keep.start).toISOString() : null,
+        modifiedEnd: keep ? new Date(keep.end).toISOString() : null,
+      });
+    }
+    if (rest) await repo.insertSchedule(tx, spaceId, oneOffFields(s.timezone, rest.start, rest.end));
+  }
+}
+
+/**
+ * The reserving apartment, the space owner (only before the reservation starts) or the administrator can cancel.
+ * When someone else cancels, the reserving apartment gets an in-app notice.
+ */
+export async function cancelReservation(
+  db: Db,
+  config: AppConfig,
+  actor: Actor,
+  id: unknown,
+  body: Record<string, unknown> = {},
+) {
   if (typeof id !== 'string' || !UUID_RE.test(id)) throw notFound();
   const reservation = await repo.getReservation(db, id);
   if (!reservation) throw notFound();
-  if (actor.kind === 'apartment' && reservation.apartmentId !== actor.apartmentId) throw notFound();
-  await repo.deleteReservation(db, id);
-  await repo.logActivity(db, {
-    actor: actor.kind,
-    action: 'reservation.cancelled',
-    apartmentId: reservation.apartmentId,
-    parkingSpaceId: reservation.parkingSpaceId,
-    details: { spaceNumber: reservation.spaceNumber, start: reservation.start, end: reservation.end },
+  const space = await repo.getSpace(db, reservation.parkingSpaceId);
+  const byGuest = actor.kind === 'apartment' && reservation.apartmentId === actor.apartmentId;
+  const ownerId =
+    !byGuest && actor.kind === 'apartment' && space?.apartmentId === actor.apartmentId ? actor.apartmentId : null;
+  if (actor.kind === 'apartment' && !byGuest && !ownerId) throw notFound();
+  if (ownerId && Date.parse(reservation.start) <= config.now()) throw new ApiError(409, 'reservation_started');
+  const message = byGuest ? null : parseMessage(body.message);
+  const cutAvailability = ownerId !== null && body.removeAvailability === true;
+  const owner = ownerId ? await repo.getApartment(db, ownerId) : null;
+
+  await db.transaction(async (tx) => {
+    await repo.lockSpace(tx, reservation.parkingSpaceId);
+    if (!(await repo.deleteReservation(tx, id))) throw notFound();
+    if (cutAvailability) {
+      await removeAvailability(tx, reservation.parkingSpaceId, Date.parse(reservation.start), Date.parse(reservation.end));
+    }
+    if (!byGuest) {
+      await repo.insertNotification(tx, reservation.apartmentId, 'reservation_cancelled', {
+        spaceNumber: reservation.spaceNumber,
+        start: reservation.start,
+        end: reservation.end,
+        cancelledBy: owner?.name ?? null,
+        message,
+      });
+    }
+    const details = { spaceNumber: reservation.spaceNumber, start: reservation.start, end: reservation.end };
+    if (ownerId) {
+      await repo.logActivity(tx, {
+        actor: 'apartment',
+        action: 'reservation.removed',
+        apartmentId: ownerId,
+        parkingSpaceId: reservation.parkingSpaceId,
+        details: { ...details, name: reservation.apartmentName, availabilityRemoved: cutAvailability },
+      });
+    } else {
+      await repo.logActivity(tx, {
+        actor: actor.kind,
+        action: 'reservation.cancelled',
+        apartmentId: reservation.apartmentId,
+        parkingSpaceId: reservation.parkingSpaceId,
+        details,
+      });
+    }
   });
 }
